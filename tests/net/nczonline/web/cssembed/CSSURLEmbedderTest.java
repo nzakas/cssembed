@@ -18,6 +18,8 @@ import static org.junit.Assert.*;
  * @author Nicholas C. Zakas
  */
 public class CSSURLEmbedderTest {
+    
+    private static String folderDataURI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAbCAMAAAAu7K2VAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAwUExURWxsbNbW1v/rhf/ge//3kf/Ub9/f3/b29oeHh/7LZv/0juazTktLS8WSLf//mf/////BPrAAAAB4SURBVHja3NLdCoAgDIbhqbXZz2f3f7eZWUpMO67nQEReBqK0vaLPJohYegnSYqSdYAtRGvUYVpJhPpx7z2piLSqsJQ73oY1ztGREuEwBpCUTwpAt7cRmncRlnWTMoCdcXxmrdiMxngpvtDcSNkX9AvTnv9uyCzAAgzAw+dNAwOQAAAAASUVORK5CYII=";
 
     public CSSURLEmbedderTest() {
     }
@@ -36,24 +38,23 @@ public class CSSURLEmbedderTest {
         String code = "background: url(folder.png);";
         
         StringWriter writer = new StringWriter();
-        CSSURLEmbedder.setVerbose(true);
         CSSURLEmbedder.embedImages(new StringReader(code), writer, filename.substring(0, filename.lastIndexOf("/")+1));
         
         String result = writer.toString();
-        assertEquals("background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAbCAMAAAAu7K2VAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAAwUExURWxsbNbW1v/rhf/ge//3kf/Ub9/f3/b29oeHh/7LZv/0juazTktLS8WSLf//mf/////BPrAAAAB4SURBVHja3NLdCoAgDIbhqbXZz2f3f7eZWUpMO67nQEReBqK0vaLPJohYegnSYqSdYAtRGvUYVpJhPpx7z2piLSqsJQ73oY1ztGREuEwBpCUTwpAt7cRmncRlnWTMoCdcXxmrdiMxngpvtDcSNkX9AvTnv9uyCzAAgzAw+dNAwOQAAAAASUVORK5CYII=);", result);
+        assertEquals("background: url(" + folderDataURI + ");", result);
     }
     
     @Test
-    public void testLocalFileWithBase() throws IOException {
-        String code = "background: url(folder.png);";
-        StringWriter writer = new StringWriter();
+    public void testAbsoluteLocalFileMultipleOneLine() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(folder.png); background: url(folder.png);";
         
-        CSSURLEmbedder.embedImages(new StringReader(code), writer, Class.class.getResource("folder.png").getPath());
+        StringWriter writer = new StringWriter();
+        CSSURLEmbedder.embedImages(new StringReader(code), writer, filename.substring(0, filename.lastIndexOf("/")+1));
         
         String result = writer.toString();
-              
-
-    }    
+        assertEquals("background: url(" + folderDataURI + "); background: url(" + folderDataURI + ");", result);
+    }
     
-
+    
 }
