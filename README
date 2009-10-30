@@ -1,24 +1,24 @@
-DataURI
+CSSEmbed
 Copyright (c) 2009 Nicholas C. Zakas. All rights reserved.
 
 -------------------------------------------------------------------------------
  About
 -------------------------------------------------------------------------------
 
-DataURI is a small program/library to make creation of data URIs for web
-content quick and easy.
+CSSEmbed is a small program/library to automate embedding of data URIs in
+CSS files.
 
 -------------------------------------------------------------------------------
  Usage
 -------------------------------------------------------------------------------
 
-Usage: java -jar datauri-x.y.z.jar [options] [input files]
+Usage: java -jar cssembed-x.y.z.jar [options] [input files]
 
 Global Options
   -h, --help            Displays this information.
-  --charset <charset>   Character set to encode into the data URI.
+  --charset <charset>   Character set of the input file.
   -v, --verbose         Display informational messages and warnings.
-  -m, --mime <type>     Mime type to encode into the data URI.
+  -root <root>          Prepends <root> to all relative URLs.
   -o <file>             Place the output into <file>. Defaults to stdout.
   
 -------------------------------------------------------------------------------
