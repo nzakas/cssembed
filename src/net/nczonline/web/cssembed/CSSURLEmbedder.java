@@ -87,8 +87,7 @@ public class CSSURLEmbedder {
         BufferedReader reader = new BufferedReader(in);        
         StringBuilder builder = new StringBuilder();
         String line;
-        int lineNum = 1;
-        
+        int lineNum = 1;        
         
         while((line = reader.readLine()) != null){
             

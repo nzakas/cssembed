@@ -85,11 +85,7 @@ public class CSSEmbed {
                     System.err.println("\n[INFO] Using charset " + charset);
                 }
             }
-            
-            //get root for relative URLs
-            root = (String) parser.getOptionValue(rootOpt);
-            
-            
+          
             //get the file arguments
             String[] fileArgs = parser.getRemainingArgs();
             
@@ -100,14 +96,29 @@ public class CSSEmbed {
             }
             
             //only the first filename is used
-            String inputFilename = fileArgs[0];         
-            
+            String inputFilename = fileArgs[0];                     
             in = new InputStreamReader(new FileInputStream(inputFilename), charset);
             
+            
+            //get root for relative URLs
+            root = (String) parser.getOptionValue(rootOpt);
+            if(root == null){
+                
+                //no root specified, so get from input file
+                root = (new File(inputFilename)).getCanonicalPath();
+                root = root.substring(0, root.lastIndexOf(File.separator));                
+            }
+            
+            if (!root.endsWith(File.separator)){
+                root += File.separator;
+            }
+            
+            if (verbose){
+                System.err.println("[INFO] Using '" + root + "' as root for relative file paths.");
+            }
                                   
             //get output filename
-            outputFilename = (String) parser.getOptionValue(outputFilenameOpt);
-            
+            outputFilename = (String) parser.getOptionValue(outputFilenameOpt);            
             if (outputFilename == null) {
                 if (verbose){
                     System.err.println("[INFO] No output file specified, defaulting to stdout.");
@@ -124,13 +135,8 @@ public class CSSEmbed {
             //set verbose option
             CSSURLEmbedder.setVerbose(verbose);
             
-            CSSURLEmbedder.embedImages(in, out, root);
-            //determine if the filename is a local file or a URL
-//            if (inputFilename.startsWith("http://")){
-//                CSSURLEmbedder.generate(new URL(inputFilename), out, mimeType);
-//            } else {
-//                CSSURLEmbedder.generate(new File(inputFilename), out, mimeType);
-//            }          
+            //do the embedding
+            CSSURLEmbedder.embedImages(in, out, root);         
             
         } catch (CmdLineParser.OptionException e) {
             usage();
