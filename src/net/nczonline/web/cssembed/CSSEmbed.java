@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.Charset;
 
 
 public class CSSEmbed {    
@@ -48,12 +49,14 @@ public class CSSEmbed {
         Writer out = null;
         String mimeType = null;
         Reader in = null;
+        String root;
         
         //initialize command line parser
         CmdLineParser parser = new CmdLineParser();
         CmdLineParser.Option verboseOpt = parser.addBooleanOption('v', "verbose");
         CmdLineParser.Option helpOpt = parser.addBooleanOption('h', "help");
         CmdLineParser.Option charsetOpt = parser.addStringOption("charset");
+        CmdLineParser.Option rootOpt = parser.addStringOption("root");
         CmdLineParser.Option outputFilenameOpt = parser.addStringOption('o', "output");
         
         try {
@@ -73,7 +76,20 @@ public class CSSEmbed {
             
             //check for charset
             charset = (String) parser.getOptionValue(charsetOpt);
-
+            if (charset == null || !Charset.isSupported(charset)) {
+                charset = System.getProperty("file.encoding");
+                if (charset == null) {
+                    charset = "UTF-8";
+                }
+                if (verbose) {
+                    System.err.println("\n[INFO] Using charset " + charset);
+                }
+            }
+            
+            //get root for relative URLs
+            root = (String) parser.getOptionValue(rootOpt);
+            
+            
             //get the file arguments
             String[] fileArgs = parser.getRemainingArgs();
             
@@ -86,7 +102,7 @@ public class CSSEmbed {
             //only the first filename is used
             String inputFilename = fileArgs[0];         
             
-            in = new InputStreamReader(new FileInputStream(fileArgs[0]), charset);
+            in = new InputStreamReader(new FileInputStream(inputFilename), charset);
             
                                   
             //get output filename
@@ -108,7 +124,7 @@ public class CSSEmbed {
             //set verbose option
             CSSURLEmbedder.setVerbose(verbose);
             
-            CSSURLEmbedder.embedImages(in, out);
+            CSSURLEmbedder.embedImages(in, out, root);
             //determine if the filename is a local file or a URL
 //            if (inputFilename.startsWith("http://")){
 //                CSSURLEmbedder.generate(new URL(inputFilename), out, mimeType);
@@ -145,7 +161,7 @@ public class CSSEmbed {
                         + "  -h, --help            Displays this information.\n"
                         + "  --charset <charset>   Character set of the input file.\n"
                         + "  -v, --verbose         Display informational messages and warnings.\n"
-                        + "  -m, --mime <type>     Mime type to encode into the data URI.\n"
+                        + "  -root <root>          Prepends <root> to all relative URLs.\n"
                         + "  -o <file>             Place the output into <file>. Defaults to stdout.");
     }
 }

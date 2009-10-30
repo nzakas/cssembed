@@ -22,7 +22,23 @@
                debug="on"
                source="1.5">
             <classpath>
-                <pathelement location="${lib.dir}/datauri-0.1.0.jar"/>
+                <pathelement location="${lib.dir}/${datauri.jar}"/>
+            </classpath>
+        </javac>
+    </target>
+ 
+    <target name="build.tests" depends="-init">
+        <mkdir dir="${build.dir}/classes"/>
+        <javac srcdir="${tests.dir}"
+               destdir="${build.dir}/classes"
+               includes="**/*.java"
+               deprecation="off"
+               debug="on"
+               source="1.5">
+            <classpath>
+                <pathelement location="${lib.dir}/${datauri.jar}"/>
+                <pathelement location="${lib.dir}/${junit.jar}"/>
+                <pathelement location="${build.dir}/classes"/>
             </classpath>
         </javac>
     </target>
@@ -59,4 +75,26 @@
              includes="${dist.package.name}/**/*"/>
     </target>
  
+    <target name="test.classes" depends="build.classes,build.tests">
+	<junit printsummary="yes" fork="yes" errorproperty="junit.failure" failureproperty="junit.failure" showoutput="true">
+
+	       	<!-- classpath must include all jar dependencies and classes -->
+                <classpath>
+                    <pathelement location="${build.dir}/classes"/>
+                    <pathelement location="${lib.dir}/${datauri.jar}"/>
+                    <pathelement location="${lib.dir}/${junit.jar}"/>
+                </classpath>
+
+	      	<!-- formatter to use for output -->
+        	<formatter type="plain" usefile="false"/>
+                
+		<!-- fully qualified classname of testsuite -->
+                <batchtest>
+                    <fileset dir="${build.dir}/classes">
+                        <include name="**/*Test.class" />
+                    </fileset>                    
+                </batchtest>
+	</junit>        
+        
+    </target>
 </project>

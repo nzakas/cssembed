@@ -24,9 +24,14 @@
 package net.nczonline.web.cssembed;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URL;
+import java.util.HashSet;
+import net.nczonline.web.datauri.DataURIGenerator;
 
 /**
  * Generator for Data URIs.
@@ -35,7 +40,15 @@ import java.io.Reader;
 public class CSSURLEmbedder { 
     
     private static boolean verbose = false;
+    private static HashSet<String> imageTypes;
     
+    static {
+        imageTypes = new HashSet<String>();
+        imageTypes.add("jpg");
+        imageTypes.add("jpeg");
+        imageTypes.add("gif");
+        imageTypes.add("png");
+    }
     
     //--------------------------------------------------------------------------
     // Get/Set verbose flag
@@ -53,8 +66,24 @@ public class CSSURLEmbedder {
     // Embed images
     //--------------------------------------------------------------------------
     
-    
+    /**
+     * Embeds data URI images into a CSS file.
+     * @param in The CSS source code.
+     * @param out The place to write out the source code.
+     * @throws java.io.IOException
+     */
     public static void embedImages(Reader in, Writer out) throws IOException {
+        embedImages(in, out, null);
+    }
+        
+    /**
+     * Embeds data URI images into a CSS file.
+     * @param in The CSS source code.
+     * @param out The place to write out the source code.
+     * @param root The root to prepend to any relative paths.
+     * @throws java.io.IOException
+     */
+    public static void embedImages(Reader in, Writer out, String root) throws IOException {
         BufferedReader reader = new BufferedReader(in);        
         StringBuilder builder = new StringBuilder();
         String line;
@@ -65,19 +94,36 @@ public class CSSURLEmbedder {
             
             int start = 0;
             int pos = line.indexOf("url(", start);
+            int npos;
             
             if (pos > -1){
                 while (pos > -1){
                     pos += 4;
                     builder.append(line.substring(start, pos));
-                    String url = line.substring(pos, line.indexOf(")", pos));
+                    npos = line.indexOf(")", pos);
+                    String url = line.substring(pos, npos).trim();
+                    String newUrl = url;
+                    
                     if (verbose){
                         System.err.println("[INFO] Found URL '" + url + "' at line " + lineNum + ", col " + pos + ".");
                     }
+                    if (url.indexOf("http:") != 0 && root != null){
+                        newUrl = root + url;
+                        if (verbose){
+                            System.err.println("[INFO] Applying root to URL, URL is now '" + newUrl + "'.");
+                        }                        
+                    }
+                    
+                    builder.append(getImageURIString(newUrl, url));
 
-                    start = pos + url.length();
+                    start = npos;                    
                     pos = line.indexOf("url(", start);
                 } 
+                
+                //finish out the line
+                if (start < line.length()){
+                    builder.append(line.substring(start));
+                }
             } else {
                 builder.append(line);
             }
@@ -86,6 +132,59 @@ public class CSSURLEmbedder {
             lineNum++;
         }
         
+        out.write(builder.toString());
+        
+    }
+    
+    /**
+     * Returns a URI string for the given URL. If the URL is for an image, 
+     * the data URI will be returned. If the URL is not for an image, then the
+     * original URI is returned.
+     * @param url The URL to attempt to read.
+     * @param originalUrl The original URL as stated in the source code.
+     * @return The appropriate data URI to use.
+     * @throws java.io.IOException
+     */
+    private static String getImageURIString(String url, String originalUrl) throws IOException {
+        
+        //check the extension - only encode for images
+        String fileType = url.substring(url.lastIndexOf(".") + 1);
+        
+        //it's an image, so encode it
+        if (imageTypes.contains(fileType)){
+            
+            StringWriter writer = new StringWriter();
+            
+            if (url.startsWith("http://")){
+                if (verbose){
+                    System.err.println("[INFO] Downloading '" + url + "' to generate data URI.");
+                }                
+                
+                DataURIGenerator.generate(new URL(url), writer); 
+              
+            } else {
+                if (verbose){
+                    System.err.println("[INFO] Opening file '" + url + "' to generate data URI.");
+                }                
+                
+                DataURIGenerator.generate(new File(url), writer); 
+            }
+
+            if (verbose){
+                System.err.println("[INFO] Generated data URI for '" + url + "'.");
+            }              
+            
+            return writer.toString();
+            
+        } else {
+            
+            if (verbose){
+                System.err.println("[INFO] URL '" + originalUrl + "' is not an image, skipping.");
+            }
+            
+            //not an image, ignore
+            return originalUrl;
+        }
         
     }
     
