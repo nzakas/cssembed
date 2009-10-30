@@ -96,6 +96,10 @@ public class CSSURLEmbedder {
             int pos = line.indexOf("url(", start);
             int npos;
             
+            if (lineNum > 1){
+                builder.append("\n");
+            }
+            
             if (pos > -1){
                 while (pos > -1){
                     pos += 4;
@@ -128,7 +132,6 @@ public class CSSURLEmbedder {
                 builder.append(line);
             }
             
-            builder.append("\n");
             lineNum++;
         }
         
@@ -153,6 +156,8 @@ public class CSSURLEmbedder {
         //it's an image, so encode it
         if (imageTypes.contains(fileType)){
             
+            DataURIGenerator.setVerbose(verbose);
+            
             StringWriter writer = new StringWriter();
             
             if (url.startsWith("http://")){
@@ -166,6 +171,12 @@ public class CSSURLEmbedder {
                 if (verbose){
                     System.err.println("[INFO] Opening file '" + url + "' to generate data URI.");
                 }                
+                
+                File file = new File(url);
+                
+                if (verbose && !file.isFile()){
+                    System.err.println("[INFO] Could not find file '" + file.getCanonicalPath() + "'.");
+                }                 
                 
                 DataURIGenerator.generate(new File(url), writer); 
             }

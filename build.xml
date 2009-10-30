@@ -28,9 +28,9 @@
     </target>
  
     <target name="build.tests" depends="-init">
-        <mkdir dir="${build.dir}/classes"/>
+        <mkdir dir="${build.dir}/testclasses"/>
         <javac srcdir="${tests.dir}"
-               destdir="${build.dir}/classes"
+               destdir="${build.dir}/testclasses"
                includes="**/*.java"
                deprecation="off"
                debug="on"
@@ -41,6 +41,9 @@
                 <pathelement location="${build.dir}/classes"/>
             </classpath>
         </javac>
+        <copy todir="${build.dir}/testclasses/net/nczonline/web/cssembed">
+            <fileset dir="${tests.dir}" includes="*.png"/>
+        </copy>
     </target>
  
     <target name="build.jar" depends="build.classes">
@@ -76,11 +79,14 @@
     </target>
  
     <target name="test.classes" depends="build.classes,build.tests">
-	<junit printsummary="yes" fork="yes" errorproperty="junit.failure" failureproperty="junit.failure" showoutput="true">
+	<junit printsummary="yes" fork="yes"  errorproperty="junit.failure" failureproperty="junit.failure" showoutput="true">
+
+                <jvmarg value="-Duser.dir=${res.dir}"/>
 
 	       	<!-- classpath must include all jar dependencies and classes -->
                 <classpath>
                     <pathelement location="${build.dir}/classes"/>
+                    <pathelement location="${build.dir}/testclasses"/>
                     <pathelement location="${lib.dir}/${datauri.jar}"/>
                     <pathelement location="${lib.dir}/${junit.jar}"/>
                 </classpath>
@@ -90,7 +96,7 @@
                 
 		<!-- fully qualified classname of testsuite -->
                 <batchtest>
-                    <fileset dir="${build.dir}/classes">
+                    <fileset dir="${build.dir}/testclasses">
                         <include name="**/*Test.class" />
                     </fileset>                    
                 </batchtest>
