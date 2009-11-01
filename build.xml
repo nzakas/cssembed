@@ -22,6 +22,7 @@
                debug="on"
                source="1.5">
             <classpath>
+                <pathelement location="${lib.dir}/${jargs.jar}"/>
                 <pathelement location="${lib.dir}/${datauri.jar}"/>
             </classpath>
         </javac>
@@ -36,6 +37,7 @@
                debug="on"
                source="1.5">
             <classpath>
+                <pathelement location="${lib.dir}/${jargs.jar}"/>
                 <pathelement location="${lib.dir}/${datauri.jar}"/>
                 <pathelement location="${lib.dir}/${junit.jar}"/>
                 <pathelement location="${build.dir}/classes"/>
@@ -48,16 +50,34 @@
  
     <target name="build.jar" depends="build.classes">
         <mkdir dir="${build.dir}/jar"/>
-        <unjar src="${lib.dir}/datauri-0.1.0.jar" dest="${build.dir}/jar"/>
+        <unjar src="${lib.dir}/${jargs.jar}" dest="${build.dir}/jar"/>
+        <unjar src="${lib.dir}/${datauri.jar}" dest="${build.dir}/jar"/>
         <copy todir="${build.dir}/jar">
             <fileset dir="${build.dir}/classes" includes="**/*.class"/>
         </copy>
         <jar destfile="${build.dir}/${jar.name}" basedir="${build.dir}/jar">
             <manifest>
-                <attribute name="Main-Class" value="net.nczonline.web.cssembed.CSSEmbed"/>
+                <attribute name="Main-Class" value="${main.class}"/>
             </manifest>
         </jar>
     </target>
+    
+    <!-- make sure to run "clean" before this if you've already run build.jar -->
+     <target name="build.core.jar" depends="build.classes">
+        <mkdir dir="${build.dir}/core-jar"/>
+        <copy todir="${build.dir}/core-jar">
+            <fileset dir="${build.dir}/classes" includes="**/*.class"/>
+        </copy>        
+        <jar destfile="${build.dir}/${core.jar.name}" basedir="${build.dir}/core-jar">
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+            </manifest>
+        </jar>
+    </target>
+    
+    <!-- build all jars -->
+    <target name="build.all.jars" depends="clean,build.core.jar,build.jar"></target>
+     
  
     <target name="build.dist.package" depends="build.jar">
         <mkdir dir="${build.dir}/${dist.package.name}"/>
