@@ -20,7 +20,7 @@
                includes="**/*.java"
                deprecation="off"
                debug="on"
-               source="1.5">
+               source="${class.version}">
             <classpath>
                 <pathelement location="${lib.dir}/${jargs.jar}"/>
                 <pathelement location="${lib.dir}/${datauri.jar}"/>
@@ -35,7 +35,7 @@
                includes="**/*.java"
                deprecation="off"
                debug="on"
-               source="1.5">
+               source="${class.version}">
             <classpath>
                 <pathelement location="${lib.dir}/${jargs.jar}"/>
                 <pathelement location="${lib.dir}/${datauri.jar}"/>

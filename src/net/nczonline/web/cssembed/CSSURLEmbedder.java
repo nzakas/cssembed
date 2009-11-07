@@ -40,10 +40,10 @@ import net.nczonline.web.datauri.DataURIGenerator;
 public class CSSURLEmbedder { 
     
     private static boolean verbose = false;
-    private static HashSet<String> imageTypes;
+    private static HashSet imageTypes;
     
     static {
-        imageTypes = new HashSet<String>();
+        imageTypes = new HashSet();
         imageTypes.add("jpg");
         imageTypes.add("jpeg");
         imageTypes.add("gif");
