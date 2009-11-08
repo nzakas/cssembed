@@ -105,6 +105,22 @@ public class CSSURLEmbedder {
                     builder.append(line.substring(start, pos));
                     npos = line.indexOf(")", pos);
                     String url = line.substring(pos, npos).trim();
+                    
+                    //eliminate quotes at the beginning and end
+                    if (url.startsWith("\"")){
+                        if (url.endsWith("\"")){
+                            url = url.substring(1, url.length()-1);
+                        } else {
+                            throw new IOException("Invalid CSS URL format (" + url + ") at line " + lineNum + ", col " + pos + ".");
+                        }                        
+                    } else if (url.startsWith("'")){
+                        if (url.endsWith("'")){
+                            url = url.substring(1, url.length()-1);
+                        } else {
+                            throw new IOException("Invalid CSS URL format (" + url + ") at line " + lineNum + ", col " + pos + ".");
+                        }                         
+                    }
+                    
                     String newUrl = url;
                     
                     if (verbose){

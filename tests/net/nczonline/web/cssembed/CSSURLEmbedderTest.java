@@ -26,6 +26,7 @@ public class CSSURLEmbedderTest {
 
     @Before
     public void setUp() {
+        CSSURLEmbedder.setVerbose(true);
     }
 
     @After
@@ -55,6 +56,30 @@ public class CSSURLEmbedderTest {
         String result = writer.toString();
         assertEquals("background: url(" + folderDataURI + "); background: url(" + folderDataURI + ");", result);
     }
+    
+    @Test
+    public void testAbsoluteLocalFileWithDoubleQuotes() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(\"folder.png\");";
+        
+        StringWriter writer = new StringWriter();
+        CSSURLEmbedder.embedImages(new StringReader(code), writer, filename.substring(0, filename.lastIndexOf("/")+1));
+        
+        String result = writer.toString();
+        assertEquals("background: url(" + folderDataURI + ");", result);
+    }
+    
+    @Test
+    public void testAbsoluteLocalFileWithSingleQuotes() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url('folder.png');";
+        
+        StringWriter writer = new StringWriter();
+        CSSURLEmbedder.embedImages(new StringReader(code), writer, filename.substring(0, filename.lastIndexOf("/")+1));
+        
+        String result = writer.toString();
+        assertEquals("background: url(" + folderDataURI + ");", result);
+    }     
     
     
 }
