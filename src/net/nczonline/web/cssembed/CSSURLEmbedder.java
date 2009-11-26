@@ -27,9 +27,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.HashSet;
 import net.nczonline.web.datauri.DataURIGenerator;
 
@@ -39,8 +41,9 @@ import net.nczonline.web.datauri.DataURIGenerator;
  */
 public class CSSURLEmbedder { 
     
-    private static boolean verbose = false;
+    private boolean verbose = false;
     private static HashSet<String> imageTypes;
+    private String code = null;
     
     static {
         imageTypes = new HashSet<String>();
@@ -51,14 +54,27 @@ public class CSSURLEmbedder {
     }
     
     //--------------------------------------------------------------------------
+    // Constructors
+    //--------------------------------------------------------------------------    
+    
+    public CSSURLEmbedder(Reader in) throws IOException {
+        this(in, false);
+    }
+    
+    public CSSURLEmbedder(Reader in, boolean verbose) throws IOException {
+        this.code = readCode(in);
+        this.verbose = verbose;
+    }
+    
+    //--------------------------------------------------------------------------
     // Get/Set verbose flag
     //--------------------------------------------------------------------------    
     
-    public static boolean getVerbose(){
+    public boolean getVerbose(){
         return verbose;
     }
     
-    public static void setVerbose(boolean newVerbose){
+    public void setVerbose(boolean newVerbose){
         verbose = newVerbose;
     }
     
@@ -68,24 +84,24 @@ public class CSSURLEmbedder {
     
     /**
      * Embeds data URI images into a CSS file.
-     * @param in The CSS source code.
      * @param out The place to write out the source code.
      * @throws java.io.IOException
      */
-    public static void embedImages(Reader in, Writer out) throws IOException {
-        embedImages(in, out, null);
+    public void embedImages(Writer out) throws IOException {
+        embedImages(out, null);
     }
         
     /**
      * Embeds data URI images into a CSS file.
-     * @param in The CSS source code.
      * @param out The place to write out the source code.
      * @param root The root to prepend to any relative paths.
      * @throws java.io.IOException
      */
-    public static void embedImages(Reader in, Writer out, String root) throws IOException {
-        BufferedReader reader = new BufferedReader(in);        
+    public void embedImages(Writer out, String root) throws IOException {
+        BufferedReader reader = new BufferedReader(new StringReader(code));        
         StringBuilder builder = new StringBuilder();
+        HashMap<String,Integer> foundMedia = new HashMap<String,Integer>();
+        
         String line;
         int lineNum = 1;        
         
@@ -121,6 +137,14 @@ public class CSSURLEmbedder {
                         }                         
                     }
                     
+                    if (foundMedia.containsKey(url)){
+                        if (verbose){
+                            System.err.println("[WARNING] Duplicate URL '" + url + "' found at line " + lineNum + ", previously declared at line " + foundMedia.get(url) + ".");
+                        }                        
+                    }
+                    
+                    foundMedia.put(url, lineNum);                    
+                    
                     String newUrl = url;
                     
                     if (verbose){
@@ -149,9 +173,9 @@ public class CSSURLEmbedder {
             
             lineNum++;
         }
-        
-        out.write(builder.toString());
-        
+        reader.close();
+
+        out.write(builder.toString());        
     }
     
     /**
@@ -163,7 +187,7 @@ public class CSSURLEmbedder {
      * @return The appropriate data URI to use.
      * @throws java.io.IOException
      */
-    private static String getImageURIString(String url, String originalUrl) throws IOException {
+    private String getImageURIString(String url, String originalUrl) throws IOException {
         
         //check the extension - only encode for images
         String fileType = url.substring(url.lastIndexOf(".") + 1);
@@ -214,5 +238,16 @@ public class CSSURLEmbedder {
         
     }
     
+    private String readCode(Reader in) throws IOException {
+        StringBuilder builder = new StringBuilder();
+        int c;
+        
+        while ((c = in.read()) != -1){
+            builder.append((char)c);
+        }
+        
+        in.close();
+        return builder.toString();
+    }
             
 }

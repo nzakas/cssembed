@@ -47,6 +47,7 @@
         </javac>
         <copy todir="${build.dir}/testclasses/net/nczonline/web/cssembed">
             <fileset dir="${tests.dir}" includes="*.png"/>
+            <fileset dir="${tests.dir}" includes="*.css"/>
         </copy>
     </target>
  

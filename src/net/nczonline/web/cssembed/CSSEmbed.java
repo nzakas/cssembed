@@ -47,7 +47,6 @@ public class CSSEmbed {
         String charset = null;
         String outputFilename = null;
         Writer out = null;
-        String mimeType = null;
         Reader in = null;
         String root;
         
@@ -99,6 +98,10 @@ public class CSSEmbed {
             String inputFilename = fileArgs[0];                     
             in = new InputStreamReader(new FileInputStream(inputFilename), charset);
             
+            CSSURLEmbedder embedder = new CSSURLEmbedder(in, verbose);            
+            
+            //close in case writing to the same file
+            in.close(); in = null;
             
             //get root for relative URLs
             root = (String) parser.getOptionValue(rootOpt);
@@ -133,10 +136,8 @@ public class CSSEmbed {
             }            
             
             //set verbose option
-            CSSURLEmbedder.setVerbose(verbose);
-            
-            //do the embedding
-            CSSURLEmbedder.embedImages(in, out, root);         
+            embedder.embedImages(out, root);
+            out.close();
             
         } catch (CmdLineParser.OptionException e) {
             usage();

@@ -1,0 +1,12 @@
+CSSEmbed
+Copyright (c) 2009 Nicholas C. Zakas. All rights reserved.
+
+0.2.7
+
+  * Added dchaplinsky's patch for warning about duplicate images.
+  * Fixed http://github.com/nzakas/cssembed/issues/#issue/5, 
+    "Specifying the same input and output results in empty file".
+
+0.2.6
+
+  * First public release.

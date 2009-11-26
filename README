@@ -12,7 +12,7 @@ CSS files.
  Usage
 -------------------------------------------------------------------------------
 
-Usage: java -jar cssembed-x.y.z.jar [options] [input files]
+Usage: java -jar cssembed-x.y.z.jar [options] [input file]
 
 Global Options
   -h, --help            Displays this information.
