@@ -41,10 +41,12 @@ import net.nczonline.web.datauri.DataURIGenerator;
  */
 public class CSSURLEmbedder { 
     
-    private boolean verbose = false;
-    private static HashSet<String> imageTypes;
-    private String code = null;
+    public static final int DATAURI_OPTION = 1;
+    public static final int MHTML_OPTION = 2;
     
+    private static String MHTML_SEPARATOR = "CSSEmbed_Image";
+    
+    private static HashSet<String> imageTypes;    
     static {
         imageTypes = new HashSet<String>();
         imageTypes.add("jpg");
@@ -52,6 +54,13 @@ public class CSSURLEmbedder {
         imageTypes.add("gif");
         imageTypes.add("png");
     }
+    
+    
+    
+    private boolean verbose = false;
+    private String code = null;
+    private int options = 1;
+    private String mhtmlUrl = "";
     
     //--------------------------------------------------------------------------
     // Constructors
@@ -61,9 +70,18 @@ public class CSSURLEmbedder {
         this(in, false);
     }
     
+    public CSSURLEmbedder(Reader in, int options) throws IOException {
+        this(in, false);
+    }
+    
     public CSSURLEmbedder(Reader in, boolean verbose) throws IOException {
+        this(in,1,verbose);
+    }
+    
+    public CSSURLEmbedder(Reader in, int options, boolean verbose) throws IOException {
         this.code = readCode(in);
         this.verbose = verbose;
+        this.options = options;
     }
     
     //--------------------------------------------------------------------------
@@ -76,6 +94,26 @@ public class CSSURLEmbedder {
     
     public void setVerbose(boolean newVerbose){
         verbose = newVerbose;
+    }
+    
+    //--------------------------------------------------------------------------
+    // Determine if an option is set - Options support not yet complete
+    //--------------------------------------------------------------------------    
+    
+    public boolean hasOption(int option){
+        return (options & option) > 0;
+    }
+
+    //--------------------------------------------------------------------------
+    // MHTML Support
+    //--------------------------------------------------------------------------    
+    
+    public String getMhtmlUrl(){
+        return mhtmlUrl;
+    }
+
+    public void setMhtmlUrl(String mhtmlUrl){
+        this.mhtmlUrl = mhtmlUrl;
     }
     
     //--------------------------------------------------------------------------
@@ -100,10 +138,19 @@ public class CSSURLEmbedder {
     public void embedImages(Writer out, String root) throws IOException {
         BufferedReader reader = new BufferedReader(new StringReader(code));        
         StringBuilder builder = new StringBuilder();
+        StringBuilder mhtmlHeader = new StringBuilder();
         HashMap<String,Integer> foundMedia = new HashMap<String,Integer>();
         
         String line;
         int lineNum = 1;        
+        
+        //create initial MHTML code
+        if (hasOption(MHTML_OPTION)){
+            mhtmlHeader.append("/*\n");
+            mhtmlHeader.append("Content-Type: multipart/related; boundary=\"");
+            mhtmlHeader.append(MHTML_SEPARATOR);
+            mhtmlHeader.append("\"\n\n");
+        }
         
         while((line = reader.readLine()) != null){
             
@@ -137,16 +184,17 @@ public class CSSURLEmbedder {
                         }                         
                     }
                     
+                    //check for duplicates
                     if (foundMedia.containsKey(url)){
                         if (verbose){
                             System.err.println("[WARNING] Duplicate URL '" + url + "' found at line " + lineNum + ", previously declared at line " + foundMedia.get(url) + ".");
                         }                        
-                    }
-                    
+                    }                    
                     foundMedia.put(url, lineNum);                    
                     
-                    String newUrl = url;
                     
+                    //Begin processing URL
+                    String newUrl = url;                    
                     if (verbose){
                         System.err.println("[INFO] Found URL '" + url + "' at line " + lineNum + ", col " + pos + ".");
                     }
@@ -157,7 +205,34 @@ public class CSSURLEmbedder {
                         }                        
                     }
                     
-                    builder.append(getImageURIString(newUrl, url));
+                    //get the data URI format
+                    String dataUriString = getImageURIString(newUrl, url);
+                    
+                    /*
+                     * Determine what to do. Eventually, you should be able to
+                     * have both a data URI and MHTML in the same file.
+                     */
+                    if (hasOption(MHTML_OPTION)){
+                        
+                        String entryName = getFilename(url);
+                        
+                        //create MHTML header entry
+                        mhtmlHeader.append("--");
+                        mhtmlHeader.append(MHTML_SEPARATOR);
+                        mhtmlHeader.append("\nContent-Location:");
+                        mhtmlHeader.append(entryName);
+                        mhtmlHeader.append("\nContent-Transfer-Encoding:base64\n\n");
+                        mhtmlHeader.append(dataUriString.substring(dataUriString.indexOf(",")+1));
+                        mhtmlHeader.append("\n");
+                        
+                        //output the URI
+                        builder.append("mhtml:");
+                        builder.append(mhtmlUrl);
+                        builder.append("!");
+                        builder.append(entryName);
+                    } else if (hasOption(DATAURI_OPTION)){
+                        builder.append(dataUriString);
+                    }
 
                     start = npos;                    
                     pos = line.indexOf("url(", start);
@@ -175,6 +250,10 @@ public class CSSURLEmbedder {
         }
         reader.close();
 
+        if (hasOption(MHTML_OPTION)){
+            mhtmlHeader.append("*/\n");
+            out.write(mhtmlHeader.toString());
+        }
         out.write(builder.toString());        
     }
     
@@ -236,6 +315,16 @@ public class CSSURLEmbedder {
             return originalUrl;
         }
         
+    }
+    
+    private String getFilename(String path){
+        if (path.indexOf("/") > -1){
+            return path.substring(path.lastIndexOf("/")+1);
+        } else if (path.indexOf("\\") > -1){
+            return path.substring(path.lastIndexOf("\\")+1);
+        } else {
+            return path;
+        }
     }
     
     private String readCode(Reader in) throws IOException {

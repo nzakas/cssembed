@@ -49,6 +49,7 @@ public class CSSEmbed {
         Writer out = null;
         Reader in = null;
         String root;
+        int options = CSSURLEmbedder.DATAURI_OPTION;
         
         //initialize command line parser
         CmdLineParser parser = new CmdLineParser();
@@ -57,6 +58,8 @@ public class CSSEmbed {
         CmdLineParser.Option charsetOpt = parser.addStringOption("charset");
         CmdLineParser.Option rootOpt = parser.addStringOption("root");
         CmdLineParser.Option outputFilenameOpt = parser.addStringOption('o', "output");
+        CmdLineParser.Option mhtmlOpt = parser.addStringOption("mhtml");
+        
         
         try {
             
@@ -94,11 +97,18 @@ public class CSSEmbed {
                 System.exit(1);
             }
             
+            //determine if MHTML mode is on
+            String mhtmlUrl = (String) parser.getOptionValue(mhtmlOpt);
+            if (mhtmlUrl != null){
+                options = CSSURLEmbedder.MHTML_OPTION;
+            }
+                        
             //only the first filename is used
             String inputFilename = fileArgs[0];                     
-            in = new InputStreamReader(new FileInputStream(inputFilename), charset);
+            in = new InputStreamReader(new FileInputStream(inputFilename), charset);            
             
-            CSSURLEmbedder embedder = new CSSURLEmbedder(in, verbose);            
+            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose);            
+            embedder.setMhtmlUrl(mhtmlUrl);
             
             //close in case writing to the same file
             in.close(); in = null;
