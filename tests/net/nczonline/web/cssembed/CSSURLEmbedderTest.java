@@ -56,6 +56,24 @@ public class CSSURLEmbedderTest {
     }
     
     @Test
+    public void testAbsoluteLocalFileWithMhtml() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(folder.png);";
+        String mhtmlUrl = "http://www.example.com/dir/styles_ie.css";
+        
+        StringWriter writer = new StringWriter();
+        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.MHTML_OPTION, true);
+        embedder.setMhtmlUrl(mhtmlUrl);
+        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
+        
+        String result = writer.toString();
+        assertEquals("/*\nContent-Type: multipart/related; boundary=\"" + CSSURLEmbedder.MHTML_SEPARATOR + 
+                "\"\n\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "\nContent-Location:folder.png\n" +
+                "Content-Transfer-Encoding:base64\n\n" + folderDataURI.substring(folderDataURI.indexOf(",")+1) +
+                "\n*/\nbackground: url(mhtml:" + mhtmlUrl + "!folder.png);", result);
+    }
+    
+    @Test
     public void testAbsoluteLocalFileMultipleOneLine() throws IOException {
         String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
         String code = "background: url(folder.png); background: url(folder.png);";

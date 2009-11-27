@@ -44,7 +44,7 @@ public class CSSURLEmbedder {
     public static final int DATAURI_OPTION = 1;
     public static final int MHTML_OPTION = 2;
     
-    private static String MHTML_SEPARATOR = "CSSEmbed_Image";
+    protected static String MHTML_SEPARATOR = "CSSEmbed_Image";
     
     private static HashSet<String> imageTypes;    
     static {
@@ -100,7 +100,7 @@ public class CSSURLEmbedder {
     // Determine if an option is set - Options support not yet complete
     //--------------------------------------------------------------------------    
     
-    public boolean hasOption(int option){
+    private boolean hasOption(int option){
         return (options & option) > 0;
     }
 
