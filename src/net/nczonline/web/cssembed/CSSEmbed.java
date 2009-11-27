@@ -58,7 +58,8 @@ public class CSSEmbed {
         CmdLineParser.Option charsetOpt = parser.addStringOption("charset");
         CmdLineParser.Option rootOpt = parser.addStringOption("root");
         CmdLineParser.Option outputFilenameOpt = parser.addStringOption('o', "output");
-        CmdLineParser.Option mhtmlOpt = parser.addStringOption("mhtml");
+        CmdLineParser.Option mhtmlOpt = parser.addBooleanOption("mhtml");
+        CmdLineParser.Option mhtmlRootOpt = parser.addStringOption("mhtmlroot");
         
         
         try {
@@ -98,17 +99,21 @@ public class CSSEmbed {
             }
             
             //determine if MHTML mode is on
-            String mhtmlUrl = (String) parser.getOptionValue(mhtmlOpt);
-            if (mhtmlUrl != null){
+            boolean mhtml = parser.getOptionValue(mhtmlOpt) != null;
+            if(mhtml){
                 options = CSSURLEmbedder.MHTML_OPTION;
             }
-                        
+            String mhtmlRoot = (String) parser.getOptionValue(mhtmlRootOpt);
+            if (mhtml && mhtmlRoot == null){
+                throw new Exception("Must use --mhtmlroot when using --mhtml.");
+            }
+            
             //only the first filename is used
             String inputFilename = fileArgs[0];                     
             in = new InputStreamReader(new FileInputStream(inputFilename), charset);            
             
             CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose);            
-            embedder.setMhtmlUrl(mhtmlUrl);
+            embedder.setMHTMLRoot(mhtmlRoot);
             
             //close in case writing to the same file
             in.close(); in = null;
@@ -139,28 +144,35 @@ public class CSSEmbed {
                 
                 out = new OutputStreamWriter(System.out);
             } else {
+                File outputFile = new File(outputFilename);
                 if (verbose){
-                    System.err.println("[INFO] Output file is '" + (new File(outputFilename)).getAbsolutePath() + "'");
+                    System.err.println("[INFO] Output file is '" + outputFile.getAbsolutePath() + "'");
                 }
+                embedder.setFilename(outputFile.getName());
                 out = new OutputStreamWriter(new FileOutputStream(outputFilename), charset);
             }            
             
             //set verbose option
             embedder.embedImages(out, root);
-            out.close();
             
         } catch (CmdLineParser.OptionException e) {
             usage();
             System.exit(1);            
         } catch (Exception e) { 
-            e.printStackTrace();
+            System.err.println("[ERROR] " + e.getMessage());
+            if (verbose){
+                e.printStackTrace();
+            }
             System.exit(1);
         } finally {
             if (out != null) {
                 try {
                     out.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.err.println("[ERROR] " + e.getMessage());
+                    if (verbose){
+                        e.printStackTrace();
+                    }
                 }
             }            
         }
@@ -177,7 +189,8 @@ public class CSSEmbed {
                         + "Global Options\n"
                         + "  -h, --help            Displays this information.\n"
                         + "  --charset <charset>   Character set of the input file.\n"
-                        + "  --mhtml <url>         Output MHTML format and use <url> as the base.\n"
+                        + "  --mhtml               Enable MHTML mode.\n"
+                        + "  --mhtmlroot <root>    Use <root> as the MHTML root for the file.\n"                        
                         + "  -v, --verbose         Display informational messages and warnings.\n"
                         + "  --root <root>         Prepends <root> to all relative URLs.\n"
                         + "  -o <file>             Place the output into <file>. Defaults to stdout.");

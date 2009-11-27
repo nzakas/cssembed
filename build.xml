@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
-<project name="CSSEmbed" default="build.jar" basedir=".">
+<project name="CSSEmbed" default="build.all.jars" basedir=".">
  
     <target name="clean" depends="-load.properties">
         <delete dir="${build.dir}" quiet="true"/>

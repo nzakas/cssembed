@@ -1,6 +1,10 @@
 CSSEmbed
 Copyright (c) 2009 Nicholas C. Zakas. All rights reserved.
 
+0.3.1
+
+  * Cleaned up MHTML support.
+
 0.3.0
 
   * Initial MHTML support based on dchaplinsky's patch.

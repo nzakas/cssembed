@@ -60,7 +60,8 @@ public class CSSURLEmbedder {
     private boolean verbose = false;
     private String code = null;
     private int options = 1;
-    private String mhtmlUrl = "";
+    private String mhtmlRoot = "";
+    private String outputFilename = "";
     
     //--------------------------------------------------------------------------
     // Constructors
@@ -108,12 +109,20 @@ public class CSSURLEmbedder {
     // MHTML Support
     //--------------------------------------------------------------------------    
     
-    public String getMhtmlUrl(){
-        return mhtmlUrl;
+    public String getMHTMLRoot(){
+        return mhtmlRoot;
     }
 
-    public void setMhtmlUrl(String mhtmlUrl){
-        this.mhtmlUrl = mhtmlUrl;
+    public void setMHTMLRoot(String mhtmlRoot){
+        this.mhtmlRoot = mhtmlRoot;
+    }
+    
+    public String getFilename(){
+        return outputFilename;
+    }
+    
+    public void setFilename(String filename){
+        this.outputFilename = filename;
     }
     
     //--------------------------------------------------------------------------
@@ -227,7 +236,7 @@ public class CSSURLEmbedder {
                         
                         //output the URI
                         builder.append("mhtml:");
-                        builder.append(mhtmlUrl);
+                        builder.append(getMHTMLPath());
                         builder.append("!");
                         builder.append(entryName);
                     } else if (hasOption(DATAURI_OPTION)){
@@ -325,6 +334,17 @@ public class CSSURLEmbedder {
         } else {
             return path;
         }
+    }
+    
+    private String getMHTMLPath(){
+        String result = mhtmlRoot;
+        if (!result.endsWith("/")){
+            result += "/";
+        }
+        
+        result += outputFilename;
+        
+        return result;
     }
     
     private String readCode(Reader in) throws IOException {
