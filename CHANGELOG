@@ -1,6 +1,12 @@
 CSSEmbed
 Copyright (c) 2009 Nicholas C. Zakas. All rights reserved.
 
+0.3.0
+
+  * Initial MHTML support based on dchaplinsky's patch.
+    http://github.com/nzakas/cssembed/issues/#issue/3,
+    "MHTML support (patch inside)"
+
 0.2.7
 
   * Added dchaplinsky's patch for warning about duplicate images.

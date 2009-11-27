@@ -177,6 +177,7 @@ public class CSSEmbed {
                         + "Global Options\n"
                         + "  -h, --help            Displays this information.\n"
                         + "  --charset <charset>   Character set of the input file.\n"
+                        + "  --mhtml <url>         Output MHTML format and use <url> as the base.\n"
                         + "  -v, --verbose         Display informational messages and warnings.\n"
                         + "  --root <root>         Prepends <root> to all relative URLs.\n"
                         + "  -o <file>             Place the output into <file>. Defaults to stdout.");
