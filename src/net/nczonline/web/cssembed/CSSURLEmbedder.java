@@ -217,6 +217,11 @@ public class CSSURLEmbedder {
                     //get the data URI format
                     String dataUriString = getImageURIString(newUrl, url);
                     
+                    //IE8 only allows dataURIs up to 32KB
+                    if (verbose && dataUriString.length() > 32768){
+                        System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than 32KB. IE8 can't display data URI images this large.");
+                    }
+                    
                     /*
                      * Determine what to do. Eventually, you should be able to
                      * have both a data URI and MHTML in the same file.

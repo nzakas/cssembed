@@ -40,7 +40,6 @@
                target="${class.version}">
             <classpath>
                 <pathelement location="${lib.dir}/${jargs.jar}"/>
-                <pathelement location="${lib.dir}/${datauri.jar}"/>
                 <pathelement location="${lib.dir}/${junit.jar}"/>
                 <pathelement location="${build.dir}/classes"/>
             </classpath>
@@ -51,38 +50,28 @@
         </copy>
     </target>
  
-    <target name="build.jar" depends="build.classes">
-        <mkdir dir="${build.dir}/jar"/>
-        <unjar src="${lib.dir}/${jargs.jar}" dest="${build.dir}/jar"/>
-        <unjar src="${lib.dir}/${datauri.jar}" dest="${build.dir}/jar"/>
-        <copy todir="${build.dir}/jar">
-            <fileset dir="${build.dir}/classes" includes="**/*.class"/>
-        </copy>
-        <jar destfile="${build.dir}/${jar.name}" basedir="${build.dir}/jar">
-            <manifest>
-                <attribute name="Main-Class" value="${main.class}"/>
-            </manifest>
-        </jar>
+    <target name="build.cssembed.jar" depends="build.classes">
+        <make-jar name="${cssembed.name}" jar="${cssembed.jar}" main="${cssembed.main}">  
+            <jar-files>
+                <fileset dir="${build.dir}/classes" includes="**/*.class"/>
+            </jar-files>    
+        </make-jar>
+        
     </target>
     
-    <!-- make sure to run "clean" before this if you've already run build.jar -->
-     <target name="build.core.jar" depends="build.classes">
-        <mkdir dir="${build.dir}/core-jar"/>
-        <copy todir="${build.dir}/core-jar">
-            <fileset dir="${build.dir}/classes" includes="**/*.class"/>
-        </copy>        
-        <jar destfile="${build.dir}/${core.jar.name}" basedir="${build.dir}/core-jar">
-            <manifest>
-                <attribute name="Main-Class" value="${main.class}"/>
-            </manifest>
-        </jar>
-    </target>
-    
+    <target name="build.datauri.jar" depends="build.classes">
+        <make-jar name="${datauri.name}" jar="${datauri.jar}" main="${datauri.main}">
+            <jar-files>
+                <fileset dir="${build.dir}/classes" includes="**/datauri/*.class"/>
+            </jar-files>    
+        </make-jar>
+    </target>     
+
     <!-- build all jars -->
-    <target name="build.all.jars" depends="clean,build.core.jar,build.jar"></target>
+    <target name="build.all.jars" depends="clean,build.cssembed.jar,build.datauri.jar"></target>
      
  
-    <target name="build.dist.package" depends="build.jar">
+    <target name="build.dist.package" depends="build.cssembed.jar,build.datauri.jar">
         <mkdir dir="${build.dir}/${dist.package.name}"/>
         <mkdir dir="${build.dir}/${dist.package.name}/build"/>
         <copy file="${build.dir}/${jar.name}" todir="${build.dir}/${dist.package.name}/build"/>
@@ -126,4 +115,24 @@
 	</junit>        
         
     </target>
+    
+    <macrodef name="make-jar">
+        <attribute name="jar"/>
+        <attribute name="main"/>
+        <attribute name="name"/>
+        <element name="jar-files"/>
+        <sequential>           
+            <mkdir dir="${build.dir}/@{name}-jar"/>
+            <unjar src="${lib.dir}/${jargs.jar}" dest="${build.dir}/@{name}-jar"/>
+            <copy todir="${build.dir}/@{name}-jar">
+                <jar-files/>
+            </copy>
+            <jar destfile="${build.dir}/@{jar}" basedir="${build.dir}/@{name}-jar">
+                <manifest>
+                    <attribute name="Main-Class" value="@{main}"/>
+                </manifest>
+            </jar>       
+        </sequential>
+    </macrodef>
+
 </project>
