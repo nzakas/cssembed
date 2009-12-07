@@ -1,6 +1,12 @@
 CSSEmbed
 Copyright (c) 2009 Nicholas C. Zakas. All rights reserved.
 
+0.3.2
+
+  * Brought DataURI into the same repo.
+  * Added warning when data URI is larger than 32KB (for IE8 support)
+  * Fixed bug where non-image URIs weren't being handled correctly in MHTML output.
+
 0.3.1
 
   * Cleaned up MHTML support.

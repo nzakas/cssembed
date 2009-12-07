@@ -134,5 +134,24 @@ public class CSSURLEmbedderTest {
         String result = new String(chars);
         assertEquals("background: url(" + folderDataURI + ");", result);
     }
+
+    @Test
+    public void testRegularUrlWithMhtml() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(folder.txt);";
+        String mhtmlUrl = "http://www.example.com/dir/";
+
+        StringWriter writer = new StringWriter();
+        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.MHTML_OPTION, true);
+        embedder.setMHTMLRoot(mhtmlUrl);
+        embedder.setFilename("styles_ie.css");
+        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
+
+        String result = writer.toString();
+        assertEquals("/*\nContent-Type: multipart/related; boundary=\"" + CSSURLEmbedder.MHTML_SEPARATOR +
+                "\"\n\n*/\nbackground: url(folder.txt);", result);
+    }
+
+
     
 }
