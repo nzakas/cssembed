@@ -270,6 +270,13 @@ public class CSSURLEmbedder {
         reader.close();
 
         if (hasOption(MHTML_OPTION)){
+
+            //Add one more boundary to fix IE/Vista issue
+            mhtmlHeader.append("\n--");
+            mhtmlHeader.append(MHTML_SEPARATOR);
+            mhtmlHeader.append("--\n");
+
+            //close comment
             mhtmlHeader.append("*/\n");
             out.write(mhtmlHeader.toString());
         }

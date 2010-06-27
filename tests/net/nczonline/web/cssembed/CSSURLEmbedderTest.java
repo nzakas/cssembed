@@ -71,7 +71,8 @@ public class CSSURLEmbedderTest {
         assertEquals("/*\nContent-Type: multipart/related; boundary=\"" + CSSURLEmbedder.MHTML_SEPARATOR + 
                 "\"\n\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "\nContent-Location:folder.png\n" +
                 "Content-Transfer-Encoding:base64\n\n" + folderDataURI.substring(folderDataURI.indexOf(",")+1) +
-                "\n*/\nbackground: url(mhtml:" + mhtmlUrl + "styles_ie.css!folder.png);", result);
+                "\n\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "--\n" +
+                "*/\nbackground: url(mhtml:" + mhtmlUrl + "styles_ie.css!folder.png);", result);
     }
     
     @Test
@@ -147,9 +148,12 @@ public class CSSURLEmbedderTest {
         embedder.setFilename("styles_ie.css");
         embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
 
+
         String result = writer.toString();
         assertEquals("/*\nContent-Type: multipart/related; boundary=\"" + CSSURLEmbedder.MHTML_SEPARATOR +
-                "\"\n\n*/\nbackground: url(folder.txt);", result);
+                "\"\n\n" +
+                "\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "--\n" +
+                "*/\nbackground: url(folder.txt);", result);
     }
 
 
