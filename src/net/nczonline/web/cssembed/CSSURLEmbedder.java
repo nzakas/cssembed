@@ -153,10 +153,10 @@ public class CSSURLEmbedder {
         
         //create initial MHTML code
         if (hasOption(MHTML_OPTION)){
-            mhtmlHeader.append("/*\n");
+            mhtmlHeader.append("/*\r\n");
             mhtmlHeader.append("Content-Type: multipart/related; boundary=\"");
             mhtmlHeader.append(MHTML_SEPARATOR);
-            mhtmlHeader.append("\"\n\n");
+            mhtmlHeader.append("\"\r\n\r\n");
         }
         
         while((line = reader.readLine()) != null){
@@ -166,7 +166,7 @@ public class CSSURLEmbedder {
             int npos;
             
             if (lineNum > 1){
-                builder.append("\n");
+                builder.append("\r\n");
             }
             
             if (pos > -1){
@@ -234,11 +234,11 @@ public class CSSURLEmbedder {
                             //create MHTML header entry
                             mhtmlHeader.append("--");
                             mhtmlHeader.append(MHTML_SEPARATOR);
-                            mhtmlHeader.append("\nContent-Location:");
+                            mhtmlHeader.append("\r\nContent-Location:");
                             mhtmlHeader.append(entryName);
-                            mhtmlHeader.append("\nContent-Transfer-Encoding:base64\n\n");
+                            mhtmlHeader.append("\r\nContent-Transfer-Encoding:base64\r\n\r\n");
                             mhtmlHeader.append(uriString.substring(uriString.indexOf(",")+1));
-                            mhtmlHeader.append("\n");
+                            mhtmlHeader.append("\r\n");
 
                             //output the URI
                             builder.append("mhtml:");
@@ -272,12 +272,12 @@ public class CSSURLEmbedder {
         if (hasOption(MHTML_OPTION)){
 
             //Add one more boundary to fix IE/Vista issue
-            mhtmlHeader.append("\n--");
+            mhtmlHeader.append("\r\n--");
             mhtmlHeader.append(MHTML_SEPARATOR);
-            mhtmlHeader.append("--\n");
+            mhtmlHeader.append("--\r\n");
 
             //close comment
-            mhtmlHeader.append("*/\n");
+            mhtmlHeader.append("*/\r\n");
             out.write(mhtmlHeader.toString());
         }
         out.write(builder.toString());        
