@@ -219,34 +219,37 @@ public class CSSURLEmbedder {
                     if (uriString.startsWith("data:")){
 
                         //IE8 only allows dataURIs up to 32KB
-                        if (verbose && uriString.length() > 32768){
-                            System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than 32KB. IE8 can't display data URI images this large.");
+                        if (uriString.length() > 32768){
+                            System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than 32KB. IE8 can't display data URI images this large, so not including this as a datauri");
+                            builder.append(url);
                         }
+                        else {
 
-                        /*
-                         * Determine what to do. Eventually, you should be able to
-                         * have both a data URI and MHTML in the same file.
-                         */
-                        if (hasOption(MHTML_OPTION)){
+                            /*
+                             * Determine what to do. Eventually, you should be able to
+                             * have both a data URI and MHTML in the same file.
+                             */
+                            if (hasOption(MHTML_OPTION)){
 
-                            String entryName = getFilename(url);
+                                String entryName = getFilename(url);
 
-                            //create MHTML header entry
-                            mhtmlHeader.append("--");
-                            mhtmlHeader.append(MHTML_SEPARATOR);
-                            mhtmlHeader.append("\r\nContent-Location:");
-                            mhtmlHeader.append(entryName);
-                            mhtmlHeader.append("\r\nContent-Transfer-Encoding:base64\r\n\r\n");
-                            mhtmlHeader.append(uriString.substring(uriString.indexOf(",")+1));
-                            mhtmlHeader.append("\r\n");
+                                //create MHTML header entry
+                                mhtmlHeader.append("--");
+                                mhtmlHeader.append(MHTML_SEPARATOR);
+                                mhtmlHeader.append("\r\nContent-Location:");
+                                mhtmlHeader.append(entryName);
+                                mhtmlHeader.append("\r\nContent-Transfer-Encoding:base64\r\n\r\n");
+                                mhtmlHeader.append(uriString.substring(uriString.indexOf(",")+1));
+                                mhtmlHeader.append("\r\n");
 
-                            //output the URI
-                            builder.append("mhtml:");
-                            builder.append(getMHTMLPath());
-                            builder.append("!");
-                            builder.append(entryName);
-                        } else if (hasOption(DATAURI_OPTION)){
-                            builder.append(uriString);
+                                //output the URI
+                                builder.append("mhtml:");
+                                builder.append(getMHTMLPath());
+                                builder.append("!");
+                                builder.append(entryName);
+                            } else if (hasOption(DATAURI_OPTION)){
+                                builder.append(uriString);
+                            }
                         }
                     } else {
                         //TODO: Clean up, duplicate code
