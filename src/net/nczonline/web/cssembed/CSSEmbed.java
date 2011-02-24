@@ -91,11 +91,15 @@ public class CSSEmbed {
           
             //get the file arguments
             String[] fileArgs = parser.getRemainingArgs();
+            String inputFilename = null;
             
-            //need to have at least one file
+            //if no file is given, use stdin
             if (fileArgs.length == 0){
-                System.err.println("[ERROR] No files specified.");
-                System.exit(1);
+                in = new InputStreamReader(System.in, charset);
+            } else {
+                //only the first filename is used
+                inputFilename = fileArgs[0];                     
+                in = new InputStreamReader(new FileInputStream(inputFilename), charset);            
             }
             
             //determine if MHTML mode is on
@@ -108,9 +112,6 @@ public class CSSEmbed {
                 throw new Exception("Must use --mhtmlroot when using --mhtml.");
             }
             
-            //only the first filename is used
-            String inputFilename = fileArgs[0];                     
-            in = new InputStreamReader(new FileInputStream(inputFilename), charset);            
             
             CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose);            
             embedder.setMHTMLRoot(mhtmlRoot);
@@ -121,10 +122,14 @@ public class CSSEmbed {
             //get root for relative URLs
             root = (String) parser.getOptionValue(rootOpt);
             if(root == null){
-                
-                //no root specified, so get from input file
-                root = (new File(inputFilename)).getCanonicalPath();
-                root = root.substring(0, root.lastIndexOf(File.separator));                
+            
+                if (inputFilename != null) {
+                    //no root specified, so get from input file
+                    root = (new File(inputFilename)).getCanonicalPath();
+                    root = root.substring(0, root.lastIndexOf(File.separator));                
+                } else {
+                    throw new Exception("Must use --root when not specifying a filename.");
+                }
             }
             
             if (!root.endsWith(File.separator)){
