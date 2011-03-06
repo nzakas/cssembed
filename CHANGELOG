@@ -1,5 +1,10 @@
 CSSEmbed
-Copyright (c) 2009 Nicholas C. Zakas. All rights reserved.
+Copyright (c) 2009-2001 Nicholas C. Zakas. All rights reserved.
+
+0.3.4
+
+  * Don't include data URIs if they're longer than 32KB (for IE8 support).
+  * Accept input from stdin.
 
 0.3.2
 
