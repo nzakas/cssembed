@@ -60,6 +60,7 @@ public class CSSURLEmbedder {
     private int options = 1;
     private String mhtmlRoot = "";
     private String outputFilename = "";
+    private int maxurilength;
     
     //--------------------------------------------------------------------------
     // Constructors
@@ -78,9 +79,14 @@ public class CSSURLEmbedder {
     }
     
     public CSSURLEmbedder(Reader in, int options, boolean verbose) throws IOException {
+        this(in,1,verbose,0);
+    }
+    
+    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxurilength) throws IOException {
         this.code = readCode(in);
         this.verbose = verbose;
         this.options = options;
+        this.maxurilength = maxurilength;
     }
     
     //--------------------------------------------------------------------------
@@ -221,6 +227,11 @@ public class CSSURLEmbedder {
                         //IE8 only allows dataURIs up to 32KB
                         if (uriString.length() > 32768){
                             System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than 32KB. IE8 can't display data URI images this large. Skipping.");
+                            builder.append(url);
+                        } else if (maxurilength > 0 && uriString.length() > maxurilength){
+                            if (verbose) {
+                                System.err.println("[INFO] File " + newUrl + " creates a data URI longer than " + maxurilength + " characters. Skipping.");
+                            }
                             builder.append(url);
                         } else {
 
