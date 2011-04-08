@@ -153,6 +153,7 @@ public class CSSURLEmbedder {
         StringBuilder builder = new StringBuilder();
         StringBuilder mhtmlHeader = new StringBuilder();
         HashMap<String,Integer> foundMedia = new HashMap<String,Integer>();
+        int conversions = 0;
         
         String line;
         int lineNum = 1;        
@@ -257,6 +258,7 @@ public class CSSURLEmbedder {
                                 builder.append(getMHTMLPath());
                                 builder.append("!");
                                 builder.append(entryName);
+                                conversions++;
                             } else if (hasOption(DATAURI_OPTION)){
                                 builder.append(uriString);
                             }
@@ -282,7 +284,7 @@ public class CSSURLEmbedder {
         }
         reader.close();
 
-        if (hasOption(MHTML_OPTION)){
+        if (hasOption(MHTML_OPTION) && conversions > 0){
 
             //Add one more boundary to fix IE/Vista issue
             mhtmlHeader.append("\n--");
