@@ -113,7 +113,7 @@ public class CSSEmbed {
                 throw new Exception("Must use --mhtmlroot when using --mhtml.");
             }
             int maxurilength = 0;
-            Integer uriOption = ((Integer) parser.getOptionValue(uriLengthOpt));
+            Integer uriOption = (Integer) parser.getOptionValue(uriLengthOpt);
             if (uriOption != null){
                 maxurilength = uriOption.intValue();
                 if (maxurilength < 0){
