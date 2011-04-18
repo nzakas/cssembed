@@ -155,7 +155,30 @@ public class CSSURLEmbedderTest {
                 "\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "--\n" +
                 "*/\nbackground: url(folder.txt);", result);
     }
-
-
     
+    @Test (expected=IOException.class)
+    public void testRegularUrlwithMissingFile() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(fooga.png);";
+        
+        StringWriter writer = new StringWriter();
+        embedder = new CSSURLEmbedder(new StringReader(code),true);
+        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
+        
+        String result = writer.toString();
+        assertEquals(code, result);
+    }
+    
+    @Test
+    public void testRegularUrlwithMissingFilesEnabled() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(fooga.png);";
+        
+        StringWriter writer = new StringWriter();
+        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.MISSING_FILES_OPTION, true);
+        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
+        
+        String result = writer.toString();
+        assertEquals(code, result);
+    }
 }
