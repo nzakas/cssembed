@@ -26,6 +26,7 @@ package net.nczonline.web.cssembed;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -303,33 +304,39 @@ public class CSSURLEmbedder {
         if (imageTypes.contains(fileType)){
             
             DataURIGenerator.setVerbose(verbose);
-            
+                
             StringWriter writer = new StringWriter();
             
-            if (url.startsWith("http://")){
-                if (verbose){
-                    System.err.println("[INFO] Downloading '" + url + "' to generate data URI.");
-                }                
-                
-                DataURIGenerator.generate(new URL(url), writer); 
-              
-            } else {
-                if (verbose){
-                    System.err.println("[INFO] Opening file '" + url + "' to generate data URI.");
-                }                
-                
-                File file = new File(url);
-                
-                if (verbose && !file.isFile()){
-                    System.err.println("[INFO] Could not find file '" + file.getCanonicalPath() + "'.");
-                }                 
-                
-                DataURIGenerator.generate(new File(url), writer); 
-            }
+            try {
+                if (url.startsWith("http://")){
+                    if (verbose){
+                        System.err.println("[INFO] Downloading '" + url + "' to generate data URI.");
+                    }                
+                    
+                    DataURIGenerator.generate(new URL(url), writer); 
+                  
+                } else {
+                    if (verbose){
+                        System.err.println("[INFO] Opening file '" + url + "' to generate data URI.");
+                    }                
+                    
+                    File file = new File(url);
+                    
+                    if (verbose && !file.isFile()){
+                        System.err.println("[INFO] Could not find file '" + file.getCanonicalPath() + "'.");
+                    }                 
+                    
+                    DataURIGenerator.generate(new File(url), writer); 
+                }
 
-            if (verbose){
-                System.err.println("[INFO] Generated data URI for '" + url + "'.");
-            }              
+                if (verbose){
+                    System.err.println("[INFO] Generated data URI for '" + url + "'.");
+                }
+            } catch (FileNotFoundException e){ 
+                System.err.println("[INFO] Could not find file. " + e.getMessage() + " Skipping.");
+                
+                writer.write(originalUrl);
+            }
             
             return writer.toString();
             
