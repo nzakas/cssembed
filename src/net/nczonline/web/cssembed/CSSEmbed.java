@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -46,6 +47,7 @@ public class CSSEmbed {
         boolean verbose = false;
         String charset = null;
         String outputFilename = null;
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         Writer out = null;
         Reader in = null;
         String root;
@@ -154,7 +156,7 @@ public class CSSEmbed {
                     System.err.println("[INFO] Output file is '" + outputFile.getAbsolutePath() + "'");
                 }
                 embedder.setFilename(outputFile.getName());
-                out = new OutputStreamWriter(new FileOutputStream(outputFilename), charset);
+                out = new OutputStreamWriter(bytes, charset);
             }            
             
             //set verbose option
@@ -173,6 +175,7 @@ public class CSSEmbed {
             if (out != null) {
                 try {
                     out.close();
+                    bytes.writeTo(new FileOutputStream(outputFilename));
                 } catch (IOException e) {
                     System.err.println("[ERROR] " + e.getMessage());
                     if (verbose){
