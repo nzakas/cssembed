@@ -63,7 +63,7 @@ public class CSSEmbed {
         CmdLineParser.Option mhtmlOpt = parser.addBooleanOption("mhtml");
         CmdLineParser.Option mhtmlRootOpt = parser.addStringOption("mhtmlroot");
         CmdLineParser.Option skipMissingOpt = parser.addBooleanOption("skip-missing");
-        
+        CmdLineParser.Option uriLengthOpt = parser.addIntegerOption('u', "maxuri");
         
         try {
             
@@ -114,6 +114,14 @@ public class CSSEmbed {
             if (mhtml && mhtmlRoot == null){
                 throw new Exception("Must use --mhtmlroot when using --mhtml.");
             }
+            int maxurilength = 0;
+            Integer uriOption = (Integer) parser.getOptionValue(uriLengthOpt);
+            if (uriOption != null){
+                maxurilength = uriOption.intValue();
+                if (maxurilength < 0){
+                    maxurilength = 0;
+                }
+            }
             
             //are missing files ok?
             boolean skipMissingFiles = parser.getOptionValue(skipMissingOpt) != null;
@@ -121,7 +129,7 @@ public class CSSEmbed {
                 options = options | CSSURLEmbedder.SKIP_MISSING_OPTION;
             }
             
-            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose);            
+            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose, maxurilength);            
             embedder.setMHTMLRoot(mhtmlRoot);
             
             //close in case writing to the same file
@@ -200,16 +208,18 @@ public class CSSEmbed {
      */
     private static void usage() {
         System.out.println(
-                "\nUsage: java -jar cssembed-x.y.z.jar [options] [input file]\n\n"
+            "\nUsage: java -jar cssembed-x.y.z.jar [options] [input file]\n\n"
 
-                        + "Global Options\n"
-                        + "  -h, --help            Displays this information.\n"
-                        + "  --charset <charset>   Character set of the input file.\n"
-                        + "  --mhtml               Enable MHTML mode.\n"
-                        + "  --mhtmlroot <root>    Use <root> as the MHTML root for the file.\n"                        
-                        + "  -v, --verbose         Display informational messages and warnings.\n"
-                        + "  --root <root>         Prepends <root> to all relative URLs.\n"
-                        + "  --skip-missing        Don't throw an error for missing image files.\n"
-                        + "  -o <file>             Place the output into <file>. Defaults to stdout.");
+                + "Global Options\n"
+                + "  -h, --help            Displays this information.\n"
+                + "  --charset <charset>   Character set of the input file.\n"
+                + "  --mhtml               Enable MHTML mode.\n"
+                + "  --mhtmlroot <root>    Use <root> as the MHTML root for the file.\n"                        
+                + "  -v, --verbose         Display informational messages and warnings.\n"
+                + "  --root <root>         Prepends <root> to all relative URLs.\n"
+                + "  --skip-missing        Don't throw an error for missing image files.\n"
+                + "  -u, --maxuri length   Maximum length of data URI to use.\n"
+                + "  -o <file>             Place the output into <file>. Defaults to stdout."
+        );
     }
 }
