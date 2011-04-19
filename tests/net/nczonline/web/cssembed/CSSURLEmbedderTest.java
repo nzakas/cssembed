@@ -175,7 +175,7 @@ public class CSSURLEmbedderTest {
         String code = "background: url(fooga.png);";
         
         StringWriter writer = new StringWriter();
-        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.MISSING_FILES_OPTION, true);
+        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.SKIP_MISSING_OPTION, true);
         embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
         
         String result = writer.toString();
