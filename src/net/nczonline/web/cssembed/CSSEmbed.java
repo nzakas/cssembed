@@ -203,7 +203,9 @@ public class CSSEmbed {
                 try {
                     out.close();
                     
-                    bytes.writeTo(new FileOutputStream(outputFilename));
+                    if(bytes.size() > 0) {
+                        bytes.writeTo(new FileOutputStream(outputFilename));
+                    }
                 } catch (IOException e) {
                     System.err.println("[ERROR] " + e.getMessage());
                     if (verbose){
