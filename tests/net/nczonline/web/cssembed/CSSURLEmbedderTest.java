@@ -114,6 +114,58 @@ public class CSSURLEmbedderTest {
         assertEquals("background: url(" + folderDataURI + ");", result);
     }     
     
+    @Test (expected=IOException.class)
+    public void testAbsoluteLocalFileWithMissingFile() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(fooga.png);";
+        
+        StringWriter writer = new StringWriter();
+        embedder = new CSSURLEmbedder(new StringReader(code),true);
+        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
+        
+        String result = writer.toString();
+        assertEquals(code, result);
+    }
+    
+    @Test
+    public void testAbsoluteLocalFileWithMissingFilesEnabled() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(fooga.png);";
+        
+        StringWriter writer = new StringWriter();
+        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.SKIP_MISSING_OPTION, true);
+        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
+        
+        String result = writer.toString();
+        assertEquals(code, result);
+    }
+    
+    @Test
+    public void testAbsoluteLocalFileUnderMaximumSize() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(folder.png);";
+        
+        StringWriter writer = new StringWriter();
+        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.DATAURI_OPTION, true, 1000);
+        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
+        
+        String result = writer.toString();
+        assertEquals("background: url(" + folderDataURI + ");", result);
+    }
+    
+    @Test
+    public void testAbsoluteLocalFileOverMaximumSize() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(folder.png);";
+        
+        StringWriter writer = new StringWriter();
+        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.DATAURI_OPTION, true, 280);
+        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
+        
+        String result = writer.toString();
+        assertEquals(code, result);
+    }
+    
     @Test
     public void testReadFromAndWriteToSameFile() throws IOException {
         String filename = CSSURLEmbedderTest.class.getResource("samefiletest.css").getPath().replace("%20", " ");
@@ -150,35 +202,6 @@ public class CSSURLEmbedderTest {
 
 
         String result = writer.toString();
-        assertEquals("/*\nContent-Type: multipart/related; boundary=\"" + CSSURLEmbedder.MHTML_SEPARATOR +
-                "\"\n\n" +
-                "\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "--\n" +
-                "*/\nbackground: url(folder.txt);", result);
-    }
-    
-    @Test (expected=IOException.class)
-    public void testRegularUrlwithMissingFile() throws IOException {
-        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
-        String code = "background: url(fooga.png);";
-        
-        StringWriter writer = new StringWriter();
-        embedder = new CSSURLEmbedder(new StringReader(code),true);
-        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
-        
-        String result = writer.toString();
-        assertEquals(code, result);
-    }
-    
-    @Test
-    public void testRegularUrlwithMissingFilesEnabled() throws IOException {
-        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
-        String code = "background: url(fooga.png);";
-        
-        StringWriter writer = new StringWriter();
-        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.SKIP_MISSING_OPTION, true);
-        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
-        
-        String result = writer.toString();
-        assertEquals(code, result);
+        assertEquals("background: url(folder.txt);", result);
     }
 }
