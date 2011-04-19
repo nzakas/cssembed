@@ -62,6 +62,7 @@ public class CSSURLEmbedder {
     private int options = 1;
     private String mhtmlRoot = "";
     private String outputFilename = "";
+    private int maxurilength;
     
     //--------------------------------------------------------------------------
     // Constructors
@@ -72,7 +73,7 @@ public class CSSURLEmbedder {
     }
     
     public CSSURLEmbedder(Reader in, int options) throws IOException {
-        this(in, false);
+        this(in, options, false);
     }
     
     public CSSURLEmbedder(Reader in, boolean verbose) throws IOException {
@@ -80,9 +81,14 @@ public class CSSURLEmbedder {
     }
     
     public CSSURLEmbedder(Reader in, int options, boolean verbose) throws IOException {
+        this(in,options,verbose,0);
+    }
+    
+    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxurilength) throws IOException {
         this.code = readCode(in);
         this.verbose = verbose;
         this.options = options;
+        this.maxurilength = maxurilength;
     }
     
     //--------------------------------------------------------------------------
@@ -149,6 +155,7 @@ public class CSSURLEmbedder {
         StringBuilder builder = new StringBuilder();
         StringBuilder mhtmlHeader = new StringBuilder();
         HashMap<String,Integer> foundMedia = new HashMap<String,Integer>();
+        int conversions = 0;
         
         String line;
         int lineNum = 1;        
@@ -224,6 +231,11 @@ public class CSSURLEmbedder {
                         if (uriString.length() > 32768){
                             System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than 32KB. IE8 can't display data URI images this large. Skipping.");
                             builder.append(url);
+                        } else if (maxurilength > 0 && uriString.length() > maxurilength){
+                            if (verbose) {
+                                System.err.println("[INFO] File " + newUrl + " creates a data URI longer than " + maxurilength + " characters. Skipping.");
+                            }
+                            builder.append(url);
                         } else {
 
                             /*
@@ -248,6 +260,7 @@ public class CSSURLEmbedder {
                                 builder.append(getMHTMLPath());
                                 builder.append("!");
                                 builder.append(entryName);
+                                conversions++;
                             } else if (hasOption(DATAURI_OPTION)){
                                 builder.append(uriString);
                             }
@@ -273,7 +286,7 @@ public class CSSURLEmbedder {
         }
         reader.close();
 
-        if (hasOption(MHTML_OPTION)){
+        if (hasOption(MHTML_OPTION) && conversions > 0){
 
             //Add one more boundary to fix IE/Vista issue
             mhtmlHeader.append("\n--");
