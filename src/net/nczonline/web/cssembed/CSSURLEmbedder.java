@@ -81,7 +81,7 @@ public class CSSURLEmbedder {
     }
     
     public CSSURLEmbedder(Reader in, int options, boolean verbose) throws IOException {
-        this(in,1,verbose,0);
+        this(in,options,verbose,0);
     }
     
     public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxurilength) throws IOException {
