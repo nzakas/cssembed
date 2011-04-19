@@ -63,6 +63,7 @@ public class CSSURLEmbedder {
     private String mhtmlRoot = "";
     private String outputFilename = "";
     private int maxurilength;
+    private int maximagesize;
     
     //--------------------------------------------------------------------------
     // Constructors
@@ -81,14 +82,15 @@ public class CSSURLEmbedder {
     }
     
     public CSSURLEmbedder(Reader in, int options, boolean verbose) throws IOException {
-        this(in,options,verbose,0);
+        this(in,options,verbose,0,0);
     }
     
-    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxurilength) throws IOException {
+    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxurilength, int maximagesize) throws IOException {
         this.code = readCode(in);
         this.verbose = verbose;
         this.options = options;
         this.maxurilength = maxurilength;
+        this.maximagesize = maximagesize;
     }
     
     //--------------------------------------------------------------------------
@@ -338,9 +340,19 @@ public class CSSURLEmbedder {
                     
                     if (verbose && !file.isFile()){
                         System.err.println("[INFO] Could not find file '" + file.getCanonicalPath() + "'.");
-                    }                 
+                    }
                     
-                    DataURIGenerator.generate(new File(url), writer); 
+                    //check file size if we've been asked to
+                    if(this.maximagesize > 0 && file.length() > this.maximagesize) {
+                        if(verbose) {
+                            System.err.println("[INFO] File " + originalUrl + " is larger than " + this.maximagesize + " bytes. Skipping.");
+                        }
+                        
+                        writer.write(originalUrl);
+                        
+                    } else {
+                        DataURIGenerator.generate(new File(url), writer); 
+                    }
                 }
 
                 if (verbose){

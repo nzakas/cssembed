@@ -64,6 +64,7 @@ public class CSSEmbed {
         CmdLineParser.Option mhtmlRootOpt = parser.addStringOption("mhtmlroot");
         CmdLineParser.Option skipMissingOpt = parser.addBooleanOption("skip-missing");
         CmdLineParser.Option uriLengthOpt = parser.addIntegerOption('u', "maxuri");
+        CmdLineParser.Option imageSizeOpt = parser.addIntegerOption('i', "image-size");
         
         try {
             
@@ -114,6 +115,8 @@ public class CSSEmbed {
             if (mhtml && mhtmlRoot == null){
                 throw new Exception("Must use --mhtmlroot when using --mhtml.");
             }
+            
+            //maximum length allowed for generated dataURI
             int maxurilength = 0;
             Integer uriOption = (Integer) parser.getOptionValue(uriLengthOpt);
             if (uriOption != null){
@@ -123,13 +126,23 @@ public class CSSEmbed {
                 }
             }
             
+            //maximum size allowed for image files
+            int maximagesize = 0;
+            Integer imageSizeOption = (Integer) parser.getOptionValue(imageSizeOpt);
+            if (imageSizeOption != null){
+                maximagesize = imageSizeOption.intValue();
+                if (maximagesize < 0){
+                    maximagesize = 0;
+                }
+            }
+            
             //are missing files ok?
             boolean skipMissingFiles = parser.getOptionValue(skipMissingOpt) != null;
             if(skipMissingFiles) {
                 options = options | CSSURLEmbedder.SKIP_MISSING_OPTION;
             }
             
-            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose, maxurilength);            
+            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose, maxurilength, maximagesize);            
             embedder.setMHTMLRoot(mhtmlRoot);
             
             //close in case writing to the same file
@@ -173,8 +186,6 @@ public class CSSEmbed {
                 out = new OutputStreamWriter(bytes, charset);
             }            
             
-            
-            
             //set verbose option
             embedder.embedImages(out, root);
             
@@ -191,6 +202,7 @@ public class CSSEmbed {
             if (out != null) {
                 try {
                     out.close();
+                    
                     bytes.writeTo(new FileOutputStream(outputFilename));
                 } catch (IOException e) {
                     System.err.println("[ERROR] " + e.getMessage());
@@ -219,6 +231,7 @@ public class CSSEmbed {
                 + "  --root <root>         Prepends <root> to all relative URLs.\n"
                 + "  --skip-missing        Don't throw an error for missing image files.\n"
                 + "  -u, --maxuri length   Maximum length of data URI to use.\n"
+                + "  -i, --image-size      Maximum image size (in bytes) to convert.\n"
                 + "  -o <file>             Place the output into <file>. Defaults to stdout."
         );
     }
