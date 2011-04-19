@@ -62,7 +62,7 @@ public class CSSEmbed {
         CmdLineParser.Option outputFilenameOpt = parser.addStringOption('o', "output");
         CmdLineParser.Option mhtmlOpt = parser.addBooleanOption("mhtml");
         CmdLineParser.Option mhtmlRootOpt = parser.addStringOption("mhtmlroot");
-        CmdLineParser.Option allowMissingFilesOpt = parser.addBooleanOption("allowmissingfiles");
+        CmdLineParser.Option skipMissingOpt = parser.addBooleanOption("skip-missing");
         
         
         try {
@@ -116,9 +116,9 @@ public class CSSEmbed {
             }
             
             //are missing files ok?
-            boolean allowMissingFiles = parser.getOptionValue(allowMissingFilesOpt) != null;
-            if(allowMissingFiles) {
-                options = options + CSSURLEmbedder.MISSING_FILES_OPTION;
+            boolean skipMissingFiles = parser.getOptionValue(skipMissingOpt) != null;
+            if(skipMissingFiles) {
+                options = options | CSSURLEmbedder.SKIP_MISSING_OPTION;
             }
             
             CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose);            
@@ -209,6 +209,7 @@ public class CSSEmbed {
                         + "  --mhtmlroot <root>    Use <root> as the MHTML root for the file.\n"                        
                         + "  -v, --verbose         Display informational messages and warnings.\n"
                         + "  --root <root>         Prepends <root> to all relative URLs.\n"
+                        + "  --skip-missing        Don't throw an error for missing image files.\n"
                         + "  -o <file>             Place the output into <file>. Defaults to stdout.");
     }
 }

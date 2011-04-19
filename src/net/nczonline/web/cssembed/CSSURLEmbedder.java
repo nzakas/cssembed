@@ -44,7 +44,7 @@ public class CSSURLEmbedder {
     
     public static final int DATAURI_OPTION = 1;
     public static final int MHTML_OPTION = 2;
-    public static final int MISSING_FILES_OPTION = 4;
+    public static final int SKIP_MISSING_OPTION = 4;
     
     protected static String MHTML_SEPARATOR = "CSSEmbed_Image";
     
@@ -62,7 +62,6 @@ public class CSSURLEmbedder {
     private int options = 1;
     private String mhtmlRoot = "";
     private String outputFilename = "";
-    private boolean allowMissingFiles = false;
     
     //--------------------------------------------------------------------------
     // Constructors
@@ -335,7 +334,7 @@ public class CSSURLEmbedder {
                     System.err.println("[INFO] Generated data URI for '" + url + "'.");
                 }
             } catch (FileNotFoundException e){ 
-                if(hasOption(MISSING_FILES_OPTION)) {
+                if(hasOption(SKIP_MISSING_OPTION)) {
                     System.err.println("[INFO] Could not find file. " + e.getMessage() + " Skipping.");
                 
                     writer.write(originalUrl);
