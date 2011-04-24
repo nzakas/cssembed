@@ -141,38 +141,12 @@ public class CSSURLEmbedderTest {
     }
 
     @Test
-    public void testAbsoluteLocalFileUnderMaxSize() throws IOException {
-        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
-        String code = "background: url(folder.png);";
-
-        StringWriter writer = new StringWriter();
-        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.DATAURI_OPTION, true, 1000);
-        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
-
-        String result = writer.toString();
-        assertEquals("background: url(" + folderDataURI + ");", result);
-    }
-
-    @Test
-    public void testAbsoluteLocalFileOverMaxSize() throws IOException {
-        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
-        String code = "background: url(folder.png);";
-
-        StringWriter writer = new StringWriter();
-        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.DATAURI_OPTION, true, 200);
-        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
-
-        String result = writer.toString();
-        assertEquals(code, result);
-    }
-    
-    @Test
     public void testAbsoluteLocalFileUnderMaxLength() throws IOException {
         String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
         String code = "background: url(folder.png);";
         
         StringWriter writer = new StringWriter();
-        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.DATAURI_OPTION, true, 1000, 0);
+        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.DATAURI_OPTION, true, 1000);
         embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
         
         String result = writer.toString();
@@ -185,7 +159,7 @@ public class CSSURLEmbedderTest {
         String code = "background: url(folder.png);";
         
         StringWriter writer = new StringWriter();
-        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.DATAURI_OPTION, true, 200, 0);
+        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.DATAURI_OPTION, true, 200);
         embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
         
         String result = writer.toString();

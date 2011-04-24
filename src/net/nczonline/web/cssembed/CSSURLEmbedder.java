@@ -64,8 +64,8 @@ public class CSSURLEmbedder {
     private int options = 1;
     private String mhtmlRoot = "";
     private String outputFilename = "";
-    private int maxUriLength = DEFAULT_MAX_URI_LENGTH;  //IE8 only allows dataURIs up to 32KB
-    private int maximagesize;
+    private int maxUriLengthh = DEFAULT_MAX_URI_LENGTH;  //IE8 only allows dataURIs up to 32KB
+    private int maxImageSize;
     
     //--------------------------------------------------------------------------
     // Constructors
@@ -80,26 +80,23 @@ public class CSSURLEmbedder {
     }
     
     public CSSURLEmbedder(Reader in, boolean verbose) throws IOException {
-        this(in,1,verbose);
+        this(in, 1, verbose);
     }
     
     public CSSURLEmbedder(Reader in, int options, boolean verbose) throws IOException {
-        this(in,options,verbose,0,0);
+        this(in, options, verbose, 0);
     }
     
-    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxurilength, int maximagesize) throws IOException {
-        this.code = readCode(in);
-        this.verbose = verbose;
-        this.options = options;
-        this.maxurilength = maxurilength;
-        this.maximagesize = maximagesize;
+    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLengthh) throws IOException {
+        this(in, options, verbose, maxUriLengthh, 0);
     }
-
-    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLength) throws IOException {
+    
+    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLengthh, int maxImageSize) throws IOException {
         this.code = readCode(in);
         this.verbose = verbose;
         this.options = options;
-        this.maxUriLength = maxUriLength;
+        this.maxUriLengthh = maxUriLengthh;
+        this.maxImageSize = maxImageSize;
     }
 
     //--------------------------------------------------------------------------
@@ -166,8 +163,6 @@ public class CSSURLEmbedder {
         StringBuilder builder = new StringBuilder();
         StringBuilder mhtmlHeader = new StringBuilder();
         HashMap<String,Integer> foundMedia = new HashMap<String,Integer>();
-        int conversions = 0;
-        
         String line;
         int lineNum = 1;        
         int conversions = 0;
@@ -240,14 +235,14 @@ public class CSSURLEmbedder {
                     if (uriString.startsWith("data:")){
 
                         
-                        if (maxUriLength > 0 && uriString.length() > maxUriLength) {
+                        if (maxUriLengthh > 0 && uriString.length() > maxUriLengthh) {
                             if (verbose){
-                                System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than " + maxUriLength + " bytes. Skipping.");
+                                System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than " + maxUriLengthh + " bytes. Skipping.");
                             }      
                             builder.append(url);
-                        } else if (maxurilength > 0 && uriString.length() > maxurilength){
+                        } else if (maxUriLengthh > 0 && uriString.length() > maxUriLengthh){
                             if (verbose) {
-                                System.err.println("[INFO] File " + newUrl + " creates a data URI longer than " + maxurilength + " characters. Skipping.");
+                                System.err.println("[INFO] File " + newUrl + " creates a data URI longer than " + maxUriLengthh + " characters. Skipping.");
                             }
                             builder.append(url);
                         } else {
@@ -358,9 +353,9 @@ public class CSSURLEmbedder {
                     }
                     
                     //check file size if we've been asked to
-                    if(this.maximagesize > 0 && file.length() > this.maximagesize) {
+                    if(this.maxImageSize > 0 && file.length() > this.maxImageSize) {
                         if(verbose) {
-                            System.err.println("[INFO] File " + originalUrl + " is larger than " + this.maximagesize + " bytes. Skipping.");
+                            System.err.println("[INFO] File " + originalUrl + " is larger than " + this.maxImageSize + " bytes. Skipping.");
                         }
                         
                         writer.write(originalUrl);
