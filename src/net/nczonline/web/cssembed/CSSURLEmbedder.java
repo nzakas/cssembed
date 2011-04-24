@@ -64,7 +64,7 @@ public class CSSURLEmbedder {
     private int options = 1;
     private String mhtmlRoot = "";
     private String outputFilename = "";
-    private int maxUriLengthh = DEFAULT_MAX_URI_LENGTH;  //IE8 only allows dataURIs up to 32KB
+    private int maxUriLength = DEFAULT_MAX_URI_LENGTH;  //IE8 only allows dataURIs up to 32KB
     private int maxImageSize;
     
     //--------------------------------------------------------------------------
@@ -87,15 +87,15 @@ public class CSSURLEmbedder {
         this(in, options, verbose, 0);
     }
     
-    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLengthh) throws IOException {
-        this(in, options, verbose, maxUriLengthh, 0);
+    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLength) throws IOException {
+        this(in, options, verbose, maxUriLength, 0);
     }
     
-    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLengthh, int maxImageSize) throws IOException {
+    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLength, int maxImageSize) throws IOException {
         this.code = readCode(in);
         this.verbose = verbose;
         this.options = options;
-        this.maxUriLengthh = maxUriLengthh;
+        this.maxUriLength = maxUriLength;
         this.maxImageSize = maxImageSize;
     }
 
@@ -235,14 +235,14 @@ public class CSSURLEmbedder {
                     if (uriString.startsWith("data:")){
 
                         
-                        if (maxUriLengthh > 0 && uriString.length() > maxUriLengthh) {
+                        if (maxUriLength > 0 && uriString.length() > maxUriLength) {
                             if (verbose){
-                                System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than " + maxUriLengthh + " bytes. Skipping.");
+                                System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than " + maxUriLength + " bytes. Skipping.");
                             }      
                             builder.append(url);
-                        } else if (maxUriLengthh > 0 && uriString.length() > maxUriLengthh){
+                        } else if (maxUriLength > 0 && uriString.length() > maxUriLength){
                             if (verbose) {
-                                System.err.println("[INFO] File " + newUrl + " creates a data URI longer than " + maxUriLengthh + " characters. Skipping.");
+                                System.err.println("[INFO] File " + newUrl + " creates a data URI longer than " + maxUriLength + " characters. Skipping.");
                             }
                             builder.append(url);
                         } else {
