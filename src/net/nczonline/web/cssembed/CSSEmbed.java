@@ -63,7 +63,7 @@ public class CSSEmbed {
         CmdLineParser.Option mhtmlOpt = parser.addBooleanOption("mhtml");
         CmdLineParser.Option mhtmlRootOpt = parser.addStringOption("mhtmlroot");
         CmdLineParser.Option skipMissingOpt = parser.addBooleanOption("skip-missing");
-        
+        CmdLineParser.Option uriLengthOpt = parser.addIntegerOption("max-uri-length");
         
         try {
             
@@ -104,7 +104,17 @@ public class CSSEmbed {
                 inputFilename = fileArgs[0];                     
                 in = new InputStreamReader(new FileInputStream(inputFilename), charset);            
             }
-            
+
+            //determine if there's a maximum URI length
+            int uriLength = CSSURLEmbedder.DEFAULT_MAX_URI_LENGTH;
+            Integer maxUriLength = (Integer) parser.getOptionValue(uriLengthOpt);
+            if (maxUriLength != null){
+                uriLength = maxUriLength.intValue();
+                if (uriLength < 0){
+                    uriLength = 0;
+                }
+            }
+
             //determine if MHTML mode is on
             boolean mhtml = parser.getOptionValue(mhtmlOpt) != null;
             if(mhtml){
@@ -121,7 +131,7 @@ public class CSSEmbed {
                 options = options | CSSURLEmbedder.SKIP_MISSING_OPTION;
             }
             
-            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose);            
+            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose, uriLength);
             embedder.setMHTMLRoot(mhtmlRoot);
             
             //close in case writing to the same file
@@ -213,6 +223,7 @@ public class CSSEmbed {
                         + "  -v, --verbose         Display informational messages and warnings.\n"
                         + "  --root <root>         Prepends <root> to all relative URLs.\n"
                         + "  --skip-missing        Don't throw an error for missing image files.\n"
+                        + "  --max-uri-length len  Maximum length for a data URI. Defaults to 32768.\n"
                         + "  -o <file>             Place the output into <file>. Defaults to stdout.");
     }
 }
