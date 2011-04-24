@@ -105,7 +105,17 @@ public class CSSEmbed {
                 inputFilename = fileArgs[0];                     
                 in = new InputStreamReader(new FileInputStream(inputFilename), charset);            
             }
-            
+
+            //determine if there's a maximum URI length
+            int uriLength = CSSURLEmbedder.DEFAULT_MAX_URI_LENGTH;
+            Integer maxUriLength = (Integer) parser.getOptionValue(uriLengthOpt);
+            if (maxUriLength != null){
+                uriLength = maxUriLength.intValue();
+                if (uriLength < 0){
+                    uriLength = 0;
+                }
+            }
+
             //determine if MHTML mode is on
             boolean mhtml = parser.getOptionValue(mhtmlOpt) != null;
             if(mhtml){
@@ -224,17 +234,16 @@ public class CSSEmbed {
         System.out.println(
             "\nUsage: java -jar cssembed-x.y.z.jar [options] [input file]\n\n"
 
-                + "Global Options\n"
-                + "  -h, --help            Displays this information.\n"
-                + "  --charset <charset>   Character set of the input file.\n"
-                + "  --mhtml               Enable MHTML mode.\n"
-                + "  --mhtmlroot <root>    Use <root> as the MHTML root for the file.\n"                        
-                + "  -v, --verbose         Display informational messages and warnings.\n"
-                + "  --root <root>         Prepends <root> to all relative URLs.\n"
-                + "  --skip-missing        Don't throw an error for missing image files.\n"
-                + "  -u, --maxuri length   Maximum length of data URI to use.\n"
-                + "  -i, --image-size      Maximum image size (in bytes) to convert.\n"
-                + "  -o <file>             Place the output into <file>. Defaults to stdout."
-        );
+                        + "Global Options\n"
+                        + "  -h, --help            Displays this information.\n"
+                        + "  --charset <charset>   Character set of the input file.\n"
+                        + "  --mhtml               Enable MHTML mode.\n"
+                        + "  --mhtmlroot <root>    Use <root> as the MHTML root for the file.\n"                        
+                        + "  -v, --verbose         Display informational messages and warnings.\n"
+                        + "  --root <root>         Prepends <root> to all relative URLs.\n"
+                        + "  --skip-missing        Don't throw an error for missing image files.\n"
+                        + "  --max-uri-length len  Maximum length for a data URI. Defaults to 32768.\n"
+                        + "  -i, --image-size      Maximum image size (in bytes) to convert.\n"
+                        + "  -o <file>             Place the output into <file>. Defaults to stdout.");
     }
 }
