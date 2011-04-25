@@ -140,6 +140,8 @@ public class CSSURLEmbedderTest {
         assertEquals(code, result);
     }
 
+
+
     @Test
     public void testAbsoluteLocalFileUnderMaxLength() throws IOException {
         String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");

@@ -9,21 +9,6 @@ CSSEmbed is a small program/library to automate embedding of data URIs in
 CSS files.
 
 -------------------------------------------------------------------------------
- Usage
--------------------------------------------------------------------------------
-
-Usage: java -jar cssembed-x.y.z.jar [options] [input file]
-
-Global Options
-  -h, --help            Displays this information.
-  --charset <charset>   Character set of the input file.
-  --mhtml               Enable MHTML mode.
-  --mhtmlroot <root>    Use <root> as the MHTML root for the file.
-  -v, --verbose         Display informational messages and warnings.
-  --root <root>         Prepends <root> to all relative URLs.
-  -o <file>             Place the output into <file>. Defaults to stdout.
-  
--------------------------------------------------------------------------------
  License
 -------------------------------------------------------------------------------
 

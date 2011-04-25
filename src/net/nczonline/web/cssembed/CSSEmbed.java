@@ -63,8 +63,8 @@ public class CSSEmbed {
         CmdLineParser.Option mhtmlOpt = parser.addBooleanOption("mhtml");
         CmdLineParser.Option mhtmlRootOpt = parser.addStringOption("mhtmlroot");
         CmdLineParser.Option skipMissingOpt = parser.addBooleanOption("skip-missing");
-        CmdLineParser.Option uriLengthOpt = parser.addIntegerOption('u', "maxuri");
-        CmdLineParser.Option imageSizeOpt = parser.addIntegerOption('i', "image-size");
+        CmdLineParser.Option uriLengthOpt = parser.addIntegerOption("max-uri-length");
+        CmdLineParser.Option imageSizeOpt = parser.addIntegerOption("max-image-size");
         
         try {
             
@@ -152,7 +152,7 @@ public class CSSEmbed {
                 options = options | CSSURLEmbedder.SKIP_MISSING_OPTION;
             }
             
-            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose, maxurilength, maximagesize);            
+            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose, uriLength, imageSize);            
             embedder.setMHTMLRoot(mhtmlRoot);
             
             //close in case writing to the same file
@@ -243,7 +243,7 @@ public class CSSEmbed {
                         + "  --root <root>         Prepends <root> to all relative URLs.\n"
                         + "  --skip-missing        Don't throw an error for missing image files.\n"
                         + "  --max-uri-length len  Maximum length for a data URI. Defaults to 32768.\n"
-                        + "  -i, --image-size      Maximum image size (in bytes) to convert.\n"
+                        + "  --max-image-size size Maximum image size (in bytes) to convert.\n"
                         + "  -o <file>             Place the output into <file>. Defaults to stdout.");
     }
 }
