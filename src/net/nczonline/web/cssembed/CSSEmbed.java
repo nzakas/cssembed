@@ -115,6 +115,16 @@ public class CSSEmbed {
                     uriLength = 0;
                 }
             }
+            
+            //maximum size allowed for image files
+            int imageSize = 0;
+            Integer imageSizeOption = (Integer) parser.getOptionValue(imageSizeOpt);
+            if (imageSizeOption != null){
+                imageSize = imageSizeOption.intValue();
+                if (imageSize < 0){
+                    imageSize = 0;
+                }
+            }
 
             //determine if MHTML mode is on
             boolean mhtml = parser.getOptionValue(mhtmlOpt) != null;
@@ -124,26 +134,6 @@ public class CSSEmbed {
             String mhtmlRoot = (String) parser.getOptionValue(mhtmlRootOpt);
             if (mhtml && mhtmlRoot == null){
                 throw new Exception("Must use --mhtmlroot when using --mhtml.");
-            }
-            
-            //maximum length allowed for generated dataURI
-            int maxurilength = 0;
-            Integer uriOption = (Integer) parser.getOptionValue(uriLengthOpt);
-            if (uriOption != null){
-                maxurilength = uriOption.intValue();
-                if (maxurilength < 0){
-                    maxurilength = 0;
-                }
-            }
-            
-            //maximum size allowed for image files
-            int maximagesize = 0;
-            Integer imageSizeOption = (Integer) parser.getOptionValue(imageSizeOpt);
-            if (imageSizeOption != null){
-                maximagesize = imageSizeOption.intValue();
-                if (maximagesize < 0){
-                    maximagesize = 0;
-                }
             }
             
             //are missing files ok?
