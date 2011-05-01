@@ -65,6 +65,7 @@ public class CSSURLEmbedder {
     private String mhtmlRoot = "";
     private String outputFilename = "";
     private int maxUriLength = DEFAULT_MAX_URI_LENGTH;  //IE8 only allows dataURIs up to 32KB
+    private int maxImageSize;
     
     //--------------------------------------------------------------------------
     // Constructors
@@ -79,20 +80,23 @@ public class CSSURLEmbedder {
     }
     
     public CSSURLEmbedder(Reader in, boolean verbose) throws IOException {
-        this(in,1,verbose);
+        this(in, 1, verbose);
     }
     
     public CSSURLEmbedder(Reader in, int options, boolean verbose) throws IOException {
-        this.code = readCode(in);
-        this.verbose = verbose;
-        this.options = options;
+        this(in, options, verbose, 0);
     }
-
+    
     public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLength) throws IOException {
+        this(in, options, verbose, maxUriLength, 0);
+    }
+    
+    public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLength, int maxImageSize) throws IOException {
         this.code = readCode(in);
         this.verbose = verbose;
         this.options = options;
         this.maxUriLength = maxUriLength;
+        this.maxImageSize = maxImageSize;
     }
 
     //--------------------------------------------------------------------------
@@ -159,7 +163,6 @@ public class CSSURLEmbedder {
         StringBuilder builder = new StringBuilder();
         StringBuilder mhtmlHeader = new StringBuilder();
         HashMap<String,Integer> foundMedia = new HashMap<String,Integer>();
-        
         String line;
         int lineNum = 1;        
         int conversions = 0;
@@ -236,6 +239,11 @@ public class CSSURLEmbedder {
                             if (verbose){
                                 System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than " + maxUriLength + " bytes. Skipping.");
                             }      
+                            builder.append(url);
+                        } else if (maxUriLength > 0 && uriString.length() > maxUriLength){
+                            if (verbose) {
+                                System.err.println("[INFO] File " + newUrl + " creates a data URI longer than " + maxUriLength + " characters. Skipping.");
+                            }
                             builder.append(url);
                         } else {
 
@@ -342,9 +350,19 @@ public class CSSURLEmbedder {
                     
                     if (verbose && !file.isFile()){
                         System.err.println("[INFO] Could not find file '" + file.getCanonicalPath() + "'.");
-                    }                 
+                    }
                     
-                    DataURIGenerator.generate(new File(url), writer); 
+                    //check file size if we've been asked to
+                    if(this.maxImageSize > 0 && file.length() > this.maxImageSize) {
+                        if(verbose) {
+                            System.err.println("[INFO] File " + originalUrl + " is larger than " + this.maxImageSize + " bytes. Skipping.");
+                        }
+                        
+                        writer.write(originalUrl);
+                        
+                    } else {
+                        DataURIGenerator.generate(new File(url), writer); 
+                    }
                 }
 
                 if (verbose){

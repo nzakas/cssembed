@@ -64,6 +64,7 @@ public class CSSEmbed {
         CmdLineParser.Option mhtmlRootOpt = parser.addStringOption("mhtmlroot");
         CmdLineParser.Option skipMissingOpt = parser.addBooleanOption("skip-missing");
         CmdLineParser.Option uriLengthOpt = parser.addIntegerOption("max-uri-length");
+        CmdLineParser.Option imageSizeOpt = parser.addIntegerOption("max-image-size");
         
         try {
             
@@ -114,6 +115,16 @@ public class CSSEmbed {
                     uriLength = 0;
                 }
             }
+            
+            //maximum size allowed for image files
+            int imageSize = 0;
+            Integer imageSizeOption = (Integer) parser.getOptionValue(imageSizeOpt);
+            if (imageSizeOption != null){
+                imageSize = imageSizeOption.intValue();
+                if (imageSize < 0){
+                    imageSize = 0;
+                }
+            }
 
             //determine if MHTML mode is on
             boolean mhtml = parser.getOptionValue(mhtmlOpt) != null;
@@ -131,7 +142,7 @@ public class CSSEmbed {
                 options = options | CSSURLEmbedder.SKIP_MISSING_OPTION;
             }
             
-            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose, uriLength);
+            CSSURLEmbedder embedder = new CSSURLEmbedder(in, options, verbose, uriLength, imageSize);            
             embedder.setMHTMLRoot(mhtmlRoot);
             
             //close in case writing to the same file
@@ -175,8 +186,6 @@ public class CSSEmbed {
                 out = new OutputStreamWriter(bytes, charset);
             }            
             
-            
-            
             //set verbose option
             embedder.embedImages(out, root);
             
@@ -213,7 +222,7 @@ public class CSSEmbed {
      */
     private static void usage() {
         System.out.println(
-                "\nUsage: java -jar cssembed-x.y.z.jar [options] [input file]\n\n"
+            "\nUsage: java -jar cssembed-x.y.z.jar [options] [input file]\n\n"
 
                         + "Global Options\n"
                         + "  -h, --help            Displays this information.\n"
@@ -224,6 +233,7 @@ public class CSSEmbed {
                         + "  --root <root>         Prepends <root> to all relative URLs.\n"
                         + "  --skip-missing        Don't throw an error for missing image files.\n"
                         + "  --max-uri-length len  Maximum length for a data URI. Defaults to 32768.\n"
+                        + "  --max-image-size size Maximum image size (in bytes) to convert.\n"
                         + "  -o <file>             Place the output into <file>. Defaults to stdout.");
     }
 }
