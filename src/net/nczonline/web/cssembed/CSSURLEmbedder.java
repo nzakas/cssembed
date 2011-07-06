@@ -35,6 +35,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import net.nczonline.web.datauri.DataURIGenerator;
+import java.util.regex.*;
 
 /**
  * Generator for Data URIs.
@@ -47,6 +48,9 @@ public class CSSURLEmbedder {
     public static final int SKIP_MISSING_OPTION = 4;
 
     public static final int DEFAULT_MAX_URI_LENGTH = 32768;
+	
+	public static final String PROC_DIRECTIVE_PREFIX = "CssEmbed";
+	public static final String PROC_DIRECTIVE_SKIP = "SKIP";
     
     protected static String MHTML_SEPARATOR = "CSSEmbed_Image";
     
@@ -184,8 +188,15 @@ public class CSSURLEmbedder {
             if (lineNum > 1){
                 builder.append("\n");
             }
-            
-            if (pos > -1){
+			
+			Pattern checkForSkip = Pattern.compile("\\/\\*.*" + PROC_DIRECTIVE_PREFIX + ".*" + PROC_DIRECTIVE_SKIP + ".*\\*\\/", Pattern.CASE_INSENSITIVE);
+			Matcher skipMatch = checkForSkip.matcher(line);
+			if (skipMatch.find()) {
+				builder.append(line);
+				if (verbose) {
+					System.err.println("[INFO] line #" + lineNum + " skipped due to SKIP directive (" + PROC_DIRECTIVE_PREFIX + ": " + PROC_DIRECTIVE_SKIP + ")");
+				}
+			} else if (pos > -1){
                 while (pos > -1){
                     pos += 4;
                     builder.append(line.substring(start, pos));
@@ -240,11 +251,6 @@ public class CSSURLEmbedder {
                                 System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than " + maxUriLength + " bytes. Skipping.");
                             }      
                             builder.append(url);
-                        } else if (maxUriLength > 0 && uriString.length() > maxUriLength){
-                            if (verbose) {
-                                System.err.println("[INFO] File " + newUrl + " creates a data URI longer than " + maxUriLength + " characters. Skipping.");
-                            }
-                            builder.append(url);
                         } else {
 
                             /*
@@ -269,13 +275,14 @@ public class CSSURLEmbedder {
                                 builder.append(getMHTMLPath());
                                 builder.append("!");
                                 builder.append(entryName);
-                                conversions++;
                             } else if (hasOption(DATAURI_OPTION)){
                                 builder.append(uriString);
                             }
+							conversions++;
                         }
                     } else {
                         //TODO: Clean up, duplicate code
+						conversions++;
                         builder.append(uriString);
                     }
 
