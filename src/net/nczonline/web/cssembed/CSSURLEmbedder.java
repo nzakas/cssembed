@@ -275,14 +275,13 @@ public class CSSURLEmbedder {
                                 builder.append(getMHTMLPath());
                                 builder.append("!");
                                 builder.append(entryName);
+				conversions++;
                             } else if (hasOption(DATAURI_OPTION)){
                                 builder.append(uriString);
                             }
-							conversions++;
                         }
                     } else {
                         //TODO: Clean up, duplicate code
-						conversions++;
                         builder.append(uriString);
                     }
 
