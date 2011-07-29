@@ -215,7 +215,6 @@ public class CSSURLEmbedder {
                     }                    
                     foundMedia.put(url, lineNum);                    
                     
-                    
                     //Begin processing URL
                     String newUrl = url;                    
                     if (verbose){
@@ -230,18 +229,16 @@ public class CSSURLEmbedder {
                     
                     //get the data URI format
                     String uriString = getImageURIString(newUrl, url);
-
+                    
                     //if it doesn't begin with data:, it's not a data URI
                     if (uriString.startsWith("data:")){
-
-                        
-                        if (maxUriLength > 0 && uriString.length() > maxUriLength) {
+                        if (maxUriLength > 0 && uriString.length() > maxUriLength){
                             if (verbose){
                                 System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than " + maxUriLength + " bytes. Skipping.");
                             }      
                             builder.append(url);
                         } else if (maxUriLength > 0 && uriString.length() > maxUriLength){
-                            if (verbose) {
+                            if (verbose){
                                 System.err.println("[INFO] File " + newUrl + " creates a data URI longer than " + maxUriLength + " characters. Skipping.");
                             }
                             builder.append(url);
@@ -252,7 +249,6 @@ public class CSSURLEmbedder {
                              * have both a data URI and MHTML in the same file.
                              */
                             if (hasOption(MHTML_OPTION)){
-
                                 String entryName = getFilename(url);
 
                                 //create MHTML header entry
@@ -272,6 +268,7 @@ public class CSSURLEmbedder {
                                 conversions++;
                             } else if (hasOption(DATAURI_OPTION)){
                                 builder.append(uriString);
+                                conversions++;
                             }
                         }
                     } else {
@@ -306,8 +303,10 @@ public class CSSURLEmbedder {
             mhtmlHeader.append("*/\n");
             out.write(mhtmlHeader.toString());
         }
-
-        System.err.println("[INFO] Converted " + conversions + " images to data URIs.");
+        
+        if (verbose){
+            System.err.println("[INFO] Converted " + conversions + " images to data URIs.");
+        }
 
         out.write(builder.toString());        
     }
@@ -353,9 +352,9 @@ public class CSSURLEmbedder {
                     }
                     
                     //check file size if we've been asked to
-                    if(this.maxImageSize > 0 && file.length() > this.maxImageSize) {
-                        if(verbose) {
-                            System.err.println("[INFO] File " + originalUrl + " is larger than " + this.maxImageSize + " bytes. Skipping.");
+                    if (maxImageSize > 0 && file.length() > maxImageSize){
+                        if (verbose){
+                            System.err.println("[INFO] File '" + originalUrl + "' is larger than " + maxImageSize + " bytes. Skipping.");
                         }
                         
                         writer.write(originalUrl);
@@ -369,7 +368,7 @@ public class CSSURLEmbedder {
                     System.err.println("[INFO] Generated data URI for '" + url + "'.");
                 }
             } catch (FileNotFoundException e){ 
-                if(hasOption(SKIP_MISSING_OPTION)) {
+                if (hasOption(SKIP_MISSING_OPTION)){
                     System.err.println("[INFO] Could not find file. " + e.getMessage() + " Skipping.");
                 
                     writer.write(originalUrl);
