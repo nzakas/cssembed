@@ -368,8 +368,10 @@ public class CSSURLEmbedder {
                     System.err.println("[INFO] Generated data URI for '" + url + "'.");
                 }
             } catch (FileNotFoundException e){ 
-                if (hasOption(SKIP_MISSING_OPTION)){
-                    System.err.println("[INFO] Could not find file. " + e.getMessage() + " Skipping.");
+                if(hasOption(SKIP_MISSING_OPTION)) {
+                    if (verbose){
+                        System.err.println("[INFO] Could not find file. " + e.getMessage() + " Skipping.");
+                    }
                 
                     writer.write(originalUrl);
                 } else {
