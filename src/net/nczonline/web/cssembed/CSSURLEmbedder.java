@@ -320,13 +320,10 @@ public class CSSURLEmbedder {
      * @return The appropriate data URI to use.
      * @throws java.io.IOException
      */
-    private String getImageURIString(String url, String originalUrl) throws IOException {
-        
-        //check the extension - only encode for images
-        String fileType = url.substring(url.lastIndexOf(".") + 1);
+    String getImageURIString(String url, String originalUrl) throws IOException {
         
         //it's an image, so encode it
-        if (imageTypes.contains(fileType)){
+        if (isImage(url)){
             
             DataURIGenerator.setVerbose(verbose);
                 
@@ -392,8 +389,27 @@ public class CSSURLEmbedder {
         }
         
     }
-    
-    private String getFilename(String path){
+
+    /*
+     * Detects if the given url represents an image
+     * This method simply checks the file extension. 
+     * A better way to detect an image is via content type response headers or by content sniffing, 
+     * but both are expensive approaches. We can do without them for now. 
+     */
+    static boolean isImage(String url) {
+    	int startPos = url.lastIndexOf(".") + 1;
+    	/*
+    	 * Some images are of the form some-image.png?parameter=value
+    	 */
+    	int endPos = url.lastIndexOf("?");
+    	if(endPos == -1 || endPos <= startPos) {
+    		endPos = url.length();
+    	}
+    	String fileType = url.substring(startPos, endPos);
+    	return imageTypes.contains(fileType);
+	}
+
+	private String getFilename(String path){
         if (path.indexOf("/") > -1){
             return path.substring(path.lastIndexOf("/")+1);
         } else if (path.indexOf("\\") > -1){
