@@ -196,7 +196,7 @@ public class CSSURLEmbedderTest {
     
     @Test
     public void testReadFromAndWriteToSameFile() throws IOException {
-        String filename = CSSURLEmbedderTest.class.getResource("samefiletest.css").getPath().replace("%20", " ");
+        String filename = this.getClass().getClassLoader().getResource("samefiletest.css").getPath().replace("%20", " ");
         File file = new File(filename);
         Reader in = new InputStreamReader(new FileInputStream(file));
         
@@ -231,5 +231,52 @@ public class CSSURLEmbedderTest {
 
         String result = writer.toString();
         assertEquals("background: url(folder.txt);", result);
+    }
+    
+    @Test
+    public void testRemoteUrlWithQueryString() throws IOException {
+    	final String expectedUrl = "http://some-http-server.com/image/with/query/parameters/image.png?a=b&c=d";
+    	String code = "background : url(/image/with/query/parameters/image.png?a=b&c=d)";
+    	
+    	StringWriter writer = new StringWriter();
+        embedder = new CSSURLEmbedder(new StringReader(code), CSSURLEmbedder.DATAURI_OPTION, true, 0, 200) {
+        	/*
+        	 * Override method to prevent a network call during unit tests
+        	 */
+			@Override
+			String getImageURIString(String url, String originalUrl) throws IOException {
+				if(url.equals("")) {
+					throw new IllegalArgumentException("Expected URL " + expectedUrl + ", but found " + url);
+				}
+				return "data:image/gif;base64,AAAABBBBCCCCDDDD";
+			}
+        };
+        embedder.embedImages(writer, "http://some-http-server.com/");
+        
+        String result = writer.toString();
+        assertEquals("background : url(data:image/gif;base64,AAAABBBBCCCCDDDD)", result);
+    }
+    
+    @Test
+    public void testImageDetection() {
+    	String tests[] = {
+    		"file://path/to/image.png",
+    		"http://some.server.com/image.png",
+    		"http://some.server.com/image.png?param=legalvalue&anotherparam=anothervalue",
+    		"http://some.server.com/image.png?param=illegal.value.with.period"
+    	};
+    	boolean expectedImage[] = {
+    		true, true, true, false
+    	};
+    	
+    	for(int i=0; i<tests.length; i++) {
+    		if(expectedImage[i]) {
+    			assertTrue("Expected " + tests[i] + " to resolve to an image", CSSURLEmbedder.isImage(tests[i]));
+    		}
+    		else {
+    			assertFalse("Did NOT expect " + tests[i] + " to resolve as an image", CSSURLEmbedder.isImage(tests[i]));
+    		}
+    	}
+    	
     }
 }
