@@ -196,7 +196,7 @@ public class CSSURLEmbedderTest {
     
     @Test
     public void testReadFromAndWriteToSameFile() throws IOException {
-        String filename = this.getClass().getClassLoader().getResource("samefiletest.css").getPath().replace("%20", " ");
+        String filename = CSSURLEmbedderTest.class.getResource("samefiletest.css").getPath().replace("%20", " ");
         File file = new File(filename);
         Reader in = new InputStreamReader(new FileInputStream(file));
         

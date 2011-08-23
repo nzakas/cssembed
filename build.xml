@@ -23,6 +23,7 @@
                source="${class.version}"
                target="${class.version}">
             <classpath>
+                <pathelement location="${lib.dir}/${ant.jar}"/>
                 <pathelement location="${lib.dir}/${jargs.jar}"/>
                 <pathelement location="${lib.dir}/${datauri.jar}"/>
             </classpath>
@@ -39,6 +40,7 @@
                source="${class.version}"
                target="${class.version}">
             <classpath>
+                <pathelement location="${lib.dir}/${ant.jar}"/>
                 <pathelement location="${lib.dir}/${jargs.jar}"/>
                 <pathelement location="${lib.dir}/${junit.jar}"/>
                 <pathelement location="${build.dir}/classes"/>

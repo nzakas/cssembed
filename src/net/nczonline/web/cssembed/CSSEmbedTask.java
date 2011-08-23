@@ -28,9 +28,7 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.BuildException;
 
 import org.apache.tools.ant.types.Mapper;
-import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.ResourceCollection;
-import org.apache.tools.ant.types.resources.FileProvider;
 import org.apache.tools.ant.types.resources.FileResource;
 
 import org.apache.tools.ant.util.FileNameMapper;
