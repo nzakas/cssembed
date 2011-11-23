@@ -25,15 +25,15 @@
               locale="en,US"/>
     </tstamp>
 
-    <target name="changelog.update">
+    <target name="changelog.update" depends="-load.properties">
         <exec executable="git" failonerror="true" outputproperty="git.tag">
             <arg line="tag"/>
         </exec>
         <script language="javascript"><![CDATA[
             //get the most recent tag to get the diff
-            var tags = csslint.getProperty("git.tag").replace("\r", "").split("\n"),
+            var tags = CSSEmbed.getProperty("git.tag").replace("\r", "").split("\n"),
                 lastTag = tags[tags.length-1];
-            csslint.setProperty("git.log.range", lastTag + "..HEAD");
+            CSSEmbed.setProperty("git.log.range", lastTag + "..HEAD");
         ]]></script>
 
         <!-- git log -pretty=format:'* %s (%an)' v0.4.0..v0.5.0-->
@@ -42,7 +42,7 @@
         </exec>
 
         <concat destfile="CHANGELOG.tmp"  fixlastline="true">
-            <header trimleading="yes">${SIMPLE_DATE} - v${csslint.version}
+            <header trimleading="yes">${SIMPLE_DATE} - v${cssembed.version}
 
             ${git.changelog}
 

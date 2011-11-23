@@ -1,45 +1,45 @@
-CSSEmbed
-Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
+November 22, 2011 - v0.4.5
+* Add option to skip some images using /*CSSEmbed:SKIP*/ after the declaration.
 
-0.4.0
-  * Make sure images with query string parameters don't cause an error (Sripathi Krishnan)
-  * New CSSEmbed Ant task (Pat Cavit)
-  * Allow specification of maximum image size to convert (Pat Cavit)
+v0.4.0
+* Make sure images with query string parameters don't cause an error (Sripathi Krishnan)
+* New CSSEmbed Ant task (Pat Cavit)
+* Allow specification of maximum image size to convert (Pat Cavit)
 
-0.3.6
-  * Allow specification of maximum data URI length (Pat Cavit and fearphage)
-  * Option to skip files that are missing (Pat Cavit)
+v0.3.6
+* Allow specification of maximum data URI length (Pat Cavit and fearphage)
+* Option to skip files that are missing (Pat Cavit)
 
-0.3.5
-  * Allow input from STDIN.
+v0.3.5
+* Allow input from STDIN.
 
-0.3.4
+v0.3.4
+* Don't include data URIs if they're longer than 32KB (for IE8 support).
+* Accept input from stdin.
 
-  * Don't include data URIs if they're longer than 32KB (for IE8 support).
-  * Accept input from stdin.
+v0.3.2
+* Brought DataURI into the same repo.
+* Added warning when data URI is larger than 32KB (for IE8 support)
+* Fixed bug where non-image URIs weren't being handled correctly in MHTML output.
 
-0.3.2
+v0.3.1
+* Cleaned up MHTML support.
 
-  * Brought DataURI into the same repo.
-  * Added warning when data URI is larger than 32KB (for IE8 support)
-  * Fixed bug where non-image URIs weren't being handled correctly in MHTML output.
-
-0.3.1
-
-  * Cleaned up MHTML support.
-
-0.3.0
-
-  * Initial MHTML support based on dchaplinsky's patch.
+v0.3.0
+* Initial MHTML support based on dchaplinsky's patch.
     http://github.com/nzakas/cssembed/issues/#issue/3,
     "MHTML support (patch inside)"
 
-0.2.7
+v0.2.7
+* Added dchaplinsky's patch for warning about duplicate images.
+* Fixed http://github.com/nzakas/cssembed/issues/#issue/5, "Specifying the same input and output results in empty file".
 
-  * Added dchaplinsky's patch for warning about duplicate images.
-  * Fixed http://github.com/nzakas/cssembed/issues/#issue/5, 
-    "Specifying the same input and output results in empty file".
+v0.2.6
+* First public release.
 
-0.2.6
 
-  * First public release.
+
+
+
+
+
