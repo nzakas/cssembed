@@ -228,11 +228,14 @@ public class CSSEmbedTask extends Task {
         out.close();
         
         if(bytes.size() > 0) {
+            FileOutputStream fos = new FileOutputStream(output);
+            
             if(verbose) {
                 log("[INFO] Writing to file: " + output);
             }
             
-            bytes.writeTo(new FileOutputStream(output));
+            bytes.writeTo(fos);
+            fos.close();
         }
     }
 }
