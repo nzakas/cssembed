@@ -232,7 +232,7 @@ public class CSSURLEmbedderTest {
         String result = writer.toString();
         assertEquals("background: url(folder.txt);", result);
     }
-    
+
     @Test
     public void testRemoteUrlWithQueryString() throws IOException {
     	final String expectedUrl = "http://some-http-server.com/image/with/query/parameters/image.png?a=b&c=d";
@@ -278,5 +278,20 @@ public class CSSURLEmbedderTest {
     		}
     	}
     	
+    }
+    
+    @Test
+    public void testRegularUrlWithSkipComment() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(folder.png);  /* CssEmbed: SKIP */";
+        
+        StringWriter writer = new StringWriter();
+        embedder = new CSSURLEmbedder(new StringReader(code), true);
+        embedder.embedImages(writer, filename.substring(0, filename.lastIndexOf("/")+1));
+        
+        String result = writer.toString();
+		//assert that nothing changed
+        assertEquals(code, result);
+
     }
 }

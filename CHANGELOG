@@ -1,9 +1,14 @@
 CSSEmbed
 Copyright (c) 2009-2011 Nicholas C. Zakas. All rights reserved.
 
+0.4.0
+  * Make sure images with query string parameters don't cause an error (Sripathi Krishnan)
+  * New CSSEmbed Ant task (Pat Cavit)
+  * Allow specification of maximum image size to convert (Pat Cavit)
+
 0.3.6
-  * Allow specification of maximum data URI length (tivac and fearphage)
-  * Option to skip files that are missing (tivac)
+  * Allow specification of maximum data URI length (Pat Cavit and fearphage)
+  * Option to skip files that are missing (Pat Cavit)
 
 0.3.5
   * Allow input from STDIN.
