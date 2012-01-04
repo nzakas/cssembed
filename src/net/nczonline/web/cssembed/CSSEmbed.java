@@ -49,6 +49,9 @@ public class CSSEmbed {
         String cssOutputFilename = null;
         ByteArrayOutputStream cssBytes = new ByteArrayOutputStream();
         Writer cssOut = null;
+        String mhtmlFilename = null;
+        ByteArrayOutputStream mhtmlBytes = new ByteArrayOutputStream();
+        Writer mhtmlOut = null;
         Reader in = null;
         String root;
         int options = CSSURLEmbedder.DATAURI_OPTION;
@@ -62,6 +65,7 @@ public class CSSEmbed {
         CmdLineParser.Option cssOutputFilenameOpt = parser.addStringOption('o', "output");
         CmdLineParser.Option mhtmlOpt = parser.addBooleanOption("mhtml");
         CmdLineParser.Option mhtmlRootOpt = parser.addStringOption("mhtmlroot");
+        CmdLineParser.Option mhtmlFilenameOpt = parser.addStringOption("mhtmlfile");
         CmdLineParser.Option skipMissingOpt = parser.addBooleanOption("skip-missing");
         CmdLineParser.Option uriLengthOpt = parser.addIntegerOption("max-uri-length");
         CmdLineParser.Option imageSizeOpt = parser.addIntegerOption("max-image-size");
@@ -135,6 +139,10 @@ public class CSSEmbed {
             if (mhtml && mhtmlRoot == null){
                 throw new Exception("Must use --mhtmlroot when using --mhtml.");
             }
+            mhtmlFilename = (String) parser.getOptionValue(mhtmlFilenameOpt);
+            if (null != mhtmlFilename){
+            	options = options | CSSURLEmbedder.MHTML_FILE_OPTION;
+            }
 
             //are missing files ok?
             boolean skipMissingFiles = parser.getOptionValue(skipMissingOpt) != null;
@@ -169,13 +177,12 @@ public class CSSEmbed {
                 System.err.println("[INFO] Using '" + root + "' as root for relative file paths.");
             }
 
-            //get CSS output filename
+            //set CSS output
             cssOutputFilename = (String) parser.getOptionValue(cssOutputFilenameOpt);
             if (cssOutputFilename == null) {
                 if (verbose){
                     System.err.println("[INFO] No CSS output file specified, defaulting to stdout.");
                 }
-
                 cssOut = new OutputStreamWriter(System.out);
             } else {
                 File cssOutputFile = new File(cssOutputFilename);
@@ -186,8 +193,19 @@ public class CSSEmbed {
                 cssOut = new OutputStreamWriter(cssBytes, charset);
             }
 
+            //set MHTML output
+            if (null != mhtmlFilename) {
+            	File mhtmlOutputFile = new File(mhtmlFilename);
+                if (verbose){
+                    System.err.println("[INFO] MHTML output file is '" + mhtmlOutputFile.getAbsolutePath() + "'");
+                }
+                mhtmlOut = new OutputStreamWriter(mhtmlBytes, charset);
+                // overwrite previous filename, if any
+                embedder.setFilename(mhtmlOutputFile.getName());
+            }
+
             //set verbose option
-            embedder.embedImages(cssOut, root);
+            embedder.embedImages(cssOut, mhtmlOut, root);
 
         } catch (CmdLineParser.OptionException e) {
             usage();
@@ -202,9 +220,21 @@ public class CSSEmbed {
             if (cssOut != null) {
                 try {
                     cssOut.close();
-
                     if(cssBytes.size() > 0) {
                         cssBytes.writeTo(new FileOutputStream(cssOutputFilename));
+                    }
+                } catch (IOException e) {
+                    System.err.println("[ERROR] " + e.getMessage());
+                    if (verbose){
+                        e.printStackTrace();
+                    }
+                }
+            }
+            if (mhtmlOut != null) {
+                try {
+                	mhtmlOut.close();
+                    if(mhtmlBytes.size() > 0) {
+                        mhtmlBytes.writeTo(new FileOutputStream(mhtmlFilename));
                     }
                 } catch (IOException e) {
                     System.err.println("[ERROR] " + e.getMessage());
@@ -229,6 +259,7 @@ public class CSSEmbed {
                         + "  --charset <charset>   Character set of the input file.\n"
                         + "  --mhtml               Enable MHTML mode.\n"
                         + "  --mhtmlroot <root>    Use <root> as the MHTML root for the file.\n"
+                        + "  --mhtmlfile <file>    Place the MHTML output into <file>.\n"
                         + "  -v, --verbose         Display informational messages and warnings.\n"
                         + "  --root <root>         Prepends <root> to all relative URLs.\n"
                         + "  --skip-missing        Don't throw an error for missing image files.\n"

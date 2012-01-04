@@ -46,6 +46,7 @@ public class CSSURLEmbedder {
     public static final int DATAURI_OPTION = 1;
     public static final int MHTML_OPTION = 2;
     public static final int SKIP_MISSING_OPTION = 4;
+    public static final int MHTML_FILE_OPTION = 8;
 
     public static final int DEFAULT_MAX_URI_LENGTH = 32768;
 
@@ -153,7 +154,7 @@ public class CSSURLEmbedder {
      * @throws java.io.IOException
      */
     public void embedImages(Writer cssOut) throws IOException {
-        embedImages(cssOut, null);
+        embedImages(cssOut, null, null);
     }
 
     /**
@@ -163,6 +164,17 @@ public class CSSURLEmbedder {
      * @throws java.io.IOException
      */
     public void embedImages(Writer cssOut, String root) throws IOException {
+        embedImages(cssOut, null, root);
+    }
+
+    /**
+     * Embeds data URI images into a CSS file.
+     * @param cssOut The place to write out the CSS source code.
+     * @param mhtmlOut The place to write out the MHTML source code.
+     * @param root The root to prepend to any relative paths.
+     * @throws java.io.IOException
+     */
+    public void embedImages(Writer cssOut, Writer mhtmlOut, String root) throws IOException {
         BufferedReader reader = new BufferedReader(new StringReader(code));
         StringBuilder cssBuilder = new StringBuilder();
         StringBuilder mhtmlBuilder = new StringBuilder();
@@ -173,7 +185,6 @@ public class CSSURLEmbedder {
 
         //create initial MHTML code
         if (hasOption(MHTML_OPTION)){
-            mhtmlBuilder.append("/*\n");
             mhtmlBuilder.append("Content-Type: multipart/related; boundary=\"");
             mhtmlBuilder.append(MHTML_SEPARATOR);
             mhtmlBuilder.append("\"\n\n");
@@ -305,9 +316,15 @@ public class CSSURLEmbedder {
             mhtmlBuilder.append(MHTML_SEPARATOR);
             mhtmlBuilder.append("--\n");
 
-            //close comment
-            mhtmlBuilder.append("*/\n");
-            cssOut.write(mhtmlBuilder.toString());
+        	if (hasOption(MHTML_FILE_OPTION)) {
+        		// write MHTML output to MHTML file
+        		mhtmlOut.write(mhtmlBuilder.toString());
+        	} else {
+        		// wrap MHTML output in comments, write to CSS file
+        		cssOut.write("/*\n");
+        		cssOut.write(mhtmlBuilder.toString());
+        		cssOut.write("*/\n");
+        	}
         }
 
         if (verbose){
