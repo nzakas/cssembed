@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2009 Nicholas C. Zakas. All rights reserved.
  * http://www.nczonline.net/
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
- 
+
 package net.nczonline.web.cssembed;
 
 import java.io.BufferedReader;
@@ -41,28 +41,28 @@ import java.util.regex.*;
  * Generator for Data URIs.
  * @author Nicholas C. Zakas
  */
-public class CSSURLEmbedder { 
-    
+public class CSSURLEmbedder {
+
     public static final int DATAURI_OPTION = 1;
     public static final int MHTML_OPTION = 2;
     public static final int SKIP_MISSING_OPTION = 4;
 
     public static final int DEFAULT_MAX_URI_LENGTH = 32768;
-	
+
 	public static final String PROC_DIRECTIVE_PREFIX = "CssEmbed";
 	public static final String PROC_DIRECTIVE_SKIP = "SKIP";
-    
+
     protected static String MHTML_SEPARATOR = "CSSEmbed_Image";
-    
-    private static HashSet<String> imageTypes;    
+
+    private static HashSet<String> imageTypes;
     static {
         imageTypes = new HashSet<String>();
         imageTypes.add("jpg");
         imageTypes.add("jpeg");
         imageTypes.add("gif");
         imageTypes.add("png");
-    }        
-    
+    }
+
     private boolean verbose = false;
     private String code = null;
     private int options = 1;
@@ -70,31 +70,31 @@ public class CSSURLEmbedder {
     private String outputFilename = "";
     private int maxUriLength = DEFAULT_MAX_URI_LENGTH;  //IE8 only allows dataURIs up to 32KB
     private int maxImageSize;
-    
+
     //--------------------------------------------------------------------------
     // Constructors
-    //--------------------------------------------------------------------------    
-    
+    //--------------------------------------------------------------------------
+
     public CSSURLEmbedder(Reader in) throws IOException {
         this(in, false);
     }
-    
+
     public CSSURLEmbedder(Reader in, int options) throws IOException {
         this(in, false);
     }
-    
+
     public CSSURLEmbedder(Reader in, boolean verbose) throws IOException {
         this(in, 1, verbose);
     }
-    
+
     public CSSURLEmbedder(Reader in, int options, boolean verbose) throws IOException {
         this(in, options, verbose, 0);
     }
-    
+
     public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLength) throws IOException {
         this(in, options, verbose, maxUriLength, 0);
     }
-    
+
     public CSSURLEmbedder(Reader in, int options, boolean verbose, int maxUriLength, int maxImageSize) throws IOException {
         this.code = readCode(in);
         this.verbose = verbose;
@@ -105,28 +105,28 @@ public class CSSURLEmbedder {
 
     //--------------------------------------------------------------------------
     // Get/Set verbose flag
-    //--------------------------------------------------------------------------    
-    
+    //--------------------------------------------------------------------------
+
     public boolean getVerbose(){
         return verbose;
     }
-    
+
     public void setVerbose(boolean newVerbose){
         verbose = newVerbose;
     }
-    
+
     //--------------------------------------------------------------------------
     // Determine if an option is set - Options support not yet complete
-    //--------------------------------------------------------------------------    
-    
+    //--------------------------------------------------------------------------
+
     private boolean hasOption(int option){
         return (options & option) > 0;
     }
 
     //--------------------------------------------------------------------------
     // MHTML Support
-    //--------------------------------------------------------------------------    
-    
+    //--------------------------------------------------------------------------
+
     public String getMHTMLRoot(){
         return mhtmlRoot;
     }
@@ -134,19 +134,19 @@ public class CSSURLEmbedder {
     public void setMHTMLRoot(String mhtmlRoot){
         this.mhtmlRoot = mhtmlRoot;
     }
-    
+
     public String getFilename(){
         return outputFilename;
     }
-    
+
     public void setFilename(String filename){
         this.outputFilename = filename;
     }
-    
+
     //--------------------------------------------------------------------------
     // Embed images
     //--------------------------------------------------------------------------
-    
+
     /**
      * Embeds data URI images into a CSS file.
      * @param out The place to write out the source code.
@@ -155,7 +155,7 @@ public class CSSURLEmbedder {
     public void embedImages(Writer out) throws IOException {
         embedImages(out, null);
     }
-        
+
     /**
      * Embeds data URI images into a CSS file.
      * @param out The place to write out the source code.
@@ -163,14 +163,14 @@ public class CSSURLEmbedder {
      * @throws java.io.IOException
      */
     public void embedImages(Writer out, String root) throws IOException {
-        BufferedReader reader = new BufferedReader(new StringReader(code));        
+        BufferedReader reader = new BufferedReader(new StringReader(code));
         StringBuilder builder = new StringBuilder();
         StringBuilder mhtmlHeader = new StringBuilder();
         HashMap<String,Integer> foundMedia = new HashMap<String,Integer>();
         String line;
-        int lineNum = 1;        
+        int lineNum = 1;
         int conversions = 0;
-        
+
         //create initial MHTML code
         if (hasOption(MHTML_OPTION)){
             mhtmlHeader.append("/*\n");
@@ -178,17 +178,17 @@ public class CSSURLEmbedder {
             mhtmlHeader.append(MHTML_SEPARATOR);
             mhtmlHeader.append("\"\n\n");
         }
-        
+
         while((line = reader.readLine()) != null){
-            
+
             int start = 0;
             int pos = line.indexOf("url(", start);
             int npos;
-            
+
             if (lineNum > 1){
                 builder.append("\n");
             }
-			
+
 			Pattern checkForSkip = Pattern.compile("\\/\\*.*" + PROC_DIRECTIVE_PREFIX + ".*" + PROC_DIRECTIVE_SKIP + ".*\\*\\/", Pattern.CASE_INSENSITIVE);
 			Matcher skipMatch = checkForSkip.matcher(line);
 			if (skipMatch.find()) {
@@ -202,32 +202,32 @@ public class CSSURLEmbedder {
                     builder.append(line.substring(start, pos));
                     npos = line.indexOf(")", pos);
                     String url = line.substring(pos, npos).trim();
-                    
+
                     //eliminate quotes at the beginning and end
                     if (url.startsWith("\"")){
                         if (url.endsWith("\"")){
                             url = url.substring(1, url.length()-1);
                         } else {
                             throw new IOException("Invalid CSS URL format (" + url + ") at line " + lineNum + ", col " + pos + ".");
-                        }                        
+                        }
                     } else if (url.startsWith("'")){
                         if (url.endsWith("'")){
                             url = url.substring(1, url.length()-1);
                         } else {
                             throw new IOException("Invalid CSS URL format (" + url + ") at line " + lineNum + ", col " + pos + ".");
-                        }                         
+                        }
                     }
-                    
+
                     //check for duplicates
                     if (foundMedia.containsKey(url)){
                         if (verbose){
                             System.err.println("[WARNING] Duplicate URL '" + url + "' found at line " + lineNum + ", previously declared at line " + foundMedia.get(url) + ".");
-                        }                        
-                    }                    
-                    foundMedia.put(url, lineNum);                    
-                    
+                        }
+                    }
+                    foundMedia.put(url, lineNum);
+
                     //Begin processing URL
-                    String newUrl = url;                    
+                    String newUrl = url;
                     if (verbose){
                         System.err.println("[INFO] Found URL '" + url + "' at line " + lineNum + ", col " + pos + ".");
                     }
@@ -235,18 +235,18 @@ public class CSSURLEmbedder {
                         newUrl = root + url;
                         if (verbose){
                             System.err.println("[INFO] Applying root to URL, URL is now '" + newUrl + "'.");
-                        }                        
+                        }
                     }
-                    
+
                     //get the data URI format
                     String uriString = getImageURIString(newUrl, url);
-                    
+
                     //if it doesn't begin with data:, it's not a data URI
                     if (uriString.startsWith("data:")){
                         if (maxUriLength > 0 && uriString.length() > maxUriLength){
                             if (verbose){
                                 System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than " + maxUriLength + " bytes. Skipping.");
-                            }      
+                            }
                             builder.append(url);
                         } else {
 
@@ -282,10 +282,10 @@ public class CSSURLEmbedder {
                         builder.append(uriString);
                     }
 
-                    start = npos;                    
+                    start = npos;
                     pos = line.indexOf("url(", start);
-                } 
-                
+                }
+
                 //finish out the line
                 if (start < line.length()){
                     builder.append(line.substring(start));
@@ -293,7 +293,7 @@ public class CSSURLEmbedder {
             } else {
                 builder.append(line);
             }
-            
+
             lineNum++;
         }
         reader.close();
@@ -309,16 +309,16 @@ public class CSSURLEmbedder {
             mhtmlHeader.append("*/\n");
             out.write(mhtmlHeader.toString());
         }
-        
+
         if (verbose){
             System.err.println("[INFO] Converted " + conversions + " images to data URIs.");
         }
 
-        out.write(builder.toString());        
+        out.write(builder.toString());
     }
-    
+
     /**
-     * Returns a URI string for the given URL. If the URL is for an image, 
+     * Returns a URI string for the given URL. If the URL is for an image,
      * the data URI will be returned. If the URL is not for an image, then the
      * original URI is returned.
      * @param url The URL to attempt to read.
@@ -327,80 +327,80 @@ public class CSSURLEmbedder {
      * @throws java.io.IOException
      */
     String getImageURIString(String url, String originalUrl) throws IOException {
-        
+
         //it's an image, so encode it
         if (isImage(url)){
-            
+
             DataURIGenerator.setVerbose(verbose);
-                
+
             StringWriter writer = new StringWriter();
-            
+
             try {
                 if (url.startsWith("http://")){
                     if (verbose){
                         System.err.println("[INFO] Downloading '" + url + "' to generate data URI.");
-                    }                
-                    
-                    DataURIGenerator.generate(new URL(url), writer); 
-                  
+                    }
+
+                    DataURIGenerator.generate(new URL(url), writer);
+
                 } else {
                     if (verbose){
                         System.err.println("[INFO] Opening file '" + url + "' to generate data URI.");
-                    }                
-                    
+                    }
+
                     File file = new File(url);
-                    
+
                     if (verbose && !file.isFile()){
                         System.err.println("[INFO] Could not find file '" + file.getCanonicalPath() + "'.");
                     }
-                    
+
                     //check file size if we've been asked to
                     if (maxImageSize > 0 && file.length() > maxImageSize){
                         if (verbose){
                             System.err.println("[INFO] File '" + originalUrl + "' is larger than " + maxImageSize + " bytes. Skipping.");
                         }
-                        
+
                         writer.write(originalUrl);
-                        
+
                     } else {
-                        DataURIGenerator.generate(new File(url), writer); 
+                        DataURIGenerator.generate(new File(url), writer);
                     }
                 }
 
                 if (verbose){
                     System.err.println("[INFO] Generated data URI for '" + url + "'.");
                 }
-            } catch (FileNotFoundException e){ 
+            } catch (FileNotFoundException e){
                 if(hasOption(SKIP_MISSING_OPTION)) {
                     if (verbose){
                         System.err.println("[INFO] Could not find file. " + e.getMessage() + " Skipping.");
                     }
-                
+
                     writer.write(originalUrl);
                 } else {
                     throw e;
                 }
             }
-            
+
             return writer.toString();
-            
+
         } else {
-            
+
             if (verbose){
                 System.err.println("[INFO] URL '" + originalUrl + "' is not an image, skipping.");
             }
-            
+
             //not an image, ignore
             return originalUrl;
         }
-        
+
     }
 
     /*
      * Detects if the given url represents an image
-     * This method simply checks the file extension. 
-     * A better way to detect an image is via content type response headers or by content sniffing, 
-     * but both are expensive approaches. We can do without them for now. 
+     * This method simply checks the file extension.
+     * A better way to detect an image is via content type response headers or by content sniffing,
+     * but both are expensive approaches. We can do without them for now.
      */
     static boolean isImage(String url) {
     	int startPos = url.lastIndexOf(".") + 1;
@@ -424,28 +424,28 @@ public class CSSURLEmbedder {
             return path;
         }
     }
-    
+
     private String getMHTMLPath(){
         String result = mhtmlRoot;
         if (!result.endsWith("/")){
             result += "/";
         }
-        
+
         result += outputFilename;
-        
+
         return result;
     }
-    
+
     private String readCode(Reader in) throws IOException {
         StringBuilder builder = new StringBuilder();
         int c;
-        
+
         while ((c = in.read()) != -1){
             builder.append((char)c);
         }
-        
+
         in.close();
         return builder.toString();
     }
-            
+
 }
