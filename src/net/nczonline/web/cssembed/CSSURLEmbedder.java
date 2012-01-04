@@ -67,7 +67,7 @@ public class CSSURLEmbedder {
     private String code = null;
     private int options = 1;
     private String mhtmlRoot = "";
-    private String outputFilename = "";
+    private String mhtmlOutputFilename = "";
     private int maxUriLength = DEFAULT_MAX_URI_LENGTH;  //IE8 only allows dataURIs up to 32KB
     private int maxImageSize;
 
@@ -136,11 +136,11 @@ public class CSSURLEmbedder {
     }
 
     public String getFilename(){
-        return outputFilename;
+        return mhtmlOutputFilename;
     }
 
     public void setFilename(String filename){
-        this.outputFilename = filename;
+        this.mhtmlOutputFilename = filename;
     }
 
     //--------------------------------------------------------------------------
@@ -149,23 +149,23 @@ public class CSSURLEmbedder {
 
     /**
      * Embeds data URI images into a CSS file.
-     * @param out The place to write out the source code.
+     * @param cssOut The place to write out the CSS source code.
      * @throws java.io.IOException
      */
-    public void embedImages(Writer out) throws IOException {
-        embedImages(out, null);
+    public void embedImages(Writer cssOut) throws IOException {
+        embedImages(cssOut, null);
     }
 
     /**
      * Embeds data URI images into a CSS file.
-     * @param out The place to write out the source code.
+     * @param cssOut The place to write out the CSS source code.
      * @param root The root to prepend to any relative paths.
      * @throws java.io.IOException
      */
-    public void embedImages(Writer out, String root) throws IOException {
+    public void embedImages(Writer cssOut, String root) throws IOException {
         BufferedReader reader = new BufferedReader(new StringReader(code));
-        StringBuilder builder = new StringBuilder();
-        StringBuilder mhtmlHeader = new StringBuilder();
+        StringBuilder cssBuilder = new StringBuilder();
+        StringBuilder mhtmlBuilder = new StringBuilder();
         HashMap<String,Integer> foundMedia = new HashMap<String,Integer>();
         String line;
         int lineNum = 1;
@@ -173,10 +173,10 @@ public class CSSURLEmbedder {
 
         //create initial MHTML code
         if (hasOption(MHTML_OPTION)){
-            mhtmlHeader.append("/*\n");
-            mhtmlHeader.append("Content-Type: multipart/related; boundary=\"");
-            mhtmlHeader.append(MHTML_SEPARATOR);
-            mhtmlHeader.append("\"\n\n");
+            mhtmlBuilder.append("/*\n");
+            mhtmlBuilder.append("Content-Type: multipart/related; boundary=\"");
+            mhtmlBuilder.append(MHTML_SEPARATOR);
+            mhtmlBuilder.append("\"\n\n");
         }
 
         while((line = reader.readLine()) != null){
@@ -186,20 +186,20 @@ public class CSSURLEmbedder {
             int npos;
 
             if (lineNum > 1){
-                builder.append("\n");
+                cssBuilder.append("\n");
             }
 
 			Pattern checkForSkip = Pattern.compile("\\/\\*.*" + PROC_DIRECTIVE_PREFIX + ".*" + PROC_DIRECTIVE_SKIP + ".*\\*\\/", Pattern.CASE_INSENSITIVE);
 			Matcher skipMatch = checkForSkip.matcher(line);
 			if (skipMatch.find()) {
-				builder.append(line);
+				cssBuilder.append(line);
 				if (verbose) {
 					System.err.println("[INFO] line #" + lineNum + " skipped due to SKIP directive (" + PROC_DIRECTIVE_PREFIX + ": " + PROC_DIRECTIVE_SKIP + ")");
 				}
 			} else if (pos > -1){
                 while (pos > -1){
                     pos += 4;
-                    builder.append(line.substring(start, pos));
+                    cssBuilder.append(line.substring(start, pos));
                     npos = line.indexOf(")", pos);
                     String url = line.substring(pos, npos).trim();
 
@@ -247,7 +247,7 @@ public class CSSURLEmbedder {
                             if (verbose){
                                 System.err.println("[WARNING] File " + newUrl + " creates a data URI larger than " + maxUriLength + " bytes. Skipping.");
                             }
-                            builder.append(url);
+                            cssBuilder.append(url);
                         } else {
 
                             /*
@@ -258,28 +258,28 @@ public class CSSURLEmbedder {
                                 String entryName = getFilename(url);
 
                                 //create MHTML header entry
-                                mhtmlHeader.append("--");
-                                mhtmlHeader.append(MHTML_SEPARATOR);
-                                mhtmlHeader.append("\nContent-Location:");
-                                mhtmlHeader.append(entryName);
-                                mhtmlHeader.append("\nContent-Transfer-Encoding:base64\n\n");
-                                mhtmlHeader.append(uriString.substring(uriString.indexOf(",")+1));
-                                mhtmlHeader.append("\n");
+                                mhtmlBuilder.append("--");
+                                mhtmlBuilder.append(MHTML_SEPARATOR);
+                                mhtmlBuilder.append("\nContent-Location:");
+                                mhtmlBuilder.append(entryName);
+                                mhtmlBuilder.append("\nContent-Transfer-Encoding:base64\n\n");
+                                mhtmlBuilder.append(uriString.substring(uriString.indexOf(",")+1));
+                                mhtmlBuilder.append("\n");
 
                                 //output the URI
-                                builder.append("mhtml:");
-                                builder.append(getMHTMLPath());
-                                builder.append("!");
-                                builder.append(entryName);
+                                cssBuilder.append("mhtml:");
+                                cssBuilder.append(getMHTMLPath());
+                                cssBuilder.append("!");
+                                cssBuilder.append(entryName);
                                 conversions++;
                             } else if (hasOption(DATAURI_OPTION)){
-                                builder.append(uriString);
+                                cssBuilder.append(uriString);
                                 conversions++;
                             }
                         }
                     } else {
                         //TODO: Clean up, duplicate code
-                        builder.append(uriString);
+                        cssBuilder.append(uriString);
                     }
 
                     start = npos;
@@ -288,10 +288,10 @@ public class CSSURLEmbedder {
 
                 //finish out the line
                 if (start < line.length()){
-                    builder.append(line.substring(start));
+                    cssBuilder.append(line.substring(start));
                 }
             } else {
-                builder.append(line);
+                cssBuilder.append(line);
             }
 
             lineNum++;
@@ -301,20 +301,20 @@ public class CSSURLEmbedder {
         if (hasOption(MHTML_OPTION) && conversions > 0){
 
             //Add one more boundary to fix IE/Vista issue
-            mhtmlHeader.append("\n--");
-            mhtmlHeader.append(MHTML_SEPARATOR);
-            mhtmlHeader.append("--\n");
+            mhtmlBuilder.append("\n--");
+            mhtmlBuilder.append(MHTML_SEPARATOR);
+            mhtmlBuilder.append("--\n");
 
             //close comment
-            mhtmlHeader.append("*/\n");
-            out.write(mhtmlHeader.toString());
+            mhtmlBuilder.append("*/\n");
+            cssOut.write(mhtmlBuilder.toString());
         }
 
         if (verbose){
             System.err.println("[INFO] Converted " + conversions + " images to data URIs.");
         }
 
-        out.write(builder.toString());
+        cssOut.write(cssBuilder.toString());
     }
 
     /**
@@ -431,7 +431,7 @@ public class CSSURLEmbedder {
             result += "/";
         }
 
-        result += outputFilename;
+        result += mhtmlOutputFilename;
 
         return result;
     }

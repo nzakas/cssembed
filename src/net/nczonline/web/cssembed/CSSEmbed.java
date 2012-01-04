@@ -46,9 +46,9 @@ public class CSSEmbed {
         //default settings
         boolean verbose = false;
         String charset = null;
-        String outputFilename = null;
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        Writer out = null;
+        String cssOutputFilename = null;
+        ByteArrayOutputStream cssBytes = new ByteArrayOutputStream();
+        Writer cssOut = null;
         Reader in = null;
         String root;
         int options = CSSURLEmbedder.DATAURI_OPTION;
@@ -59,7 +59,7 @@ public class CSSEmbed {
         CmdLineParser.Option helpOpt = parser.addBooleanOption('h', "help");
         CmdLineParser.Option charsetOpt = parser.addStringOption("charset");
         CmdLineParser.Option rootOpt = parser.addStringOption("root");
-        CmdLineParser.Option outputFilenameOpt = parser.addStringOption('o', "output");
+        CmdLineParser.Option cssOutputFilenameOpt = parser.addStringOption('o', "output");
         CmdLineParser.Option mhtmlOpt = parser.addBooleanOption("mhtml");
         CmdLineParser.Option mhtmlRootOpt = parser.addStringOption("mhtmlroot");
         CmdLineParser.Option skipMissingOpt = parser.addBooleanOption("skip-missing");
@@ -169,25 +169,25 @@ public class CSSEmbed {
                 System.err.println("[INFO] Using '" + root + "' as root for relative file paths.");
             }
 
-            //get output filename
-            outputFilename = (String) parser.getOptionValue(outputFilenameOpt);
-            if (outputFilename == null) {
+            //get CSS output filename
+            cssOutputFilename = (String) parser.getOptionValue(cssOutputFilenameOpt);
+            if (cssOutputFilename == null) {
                 if (verbose){
-                    System.err.println("[INFO] No output file specified, defaulting to stdout.");
+                    System.err.println("[INFO] No CSS output file specified, defaulting to stdout.");
                 }
 
-                out = new OutputStreamWriter(System.out);
+                cssOut = new OutputStreamWriter(System.out);
             } else {
-                File outputFile = new File(outputFilename);
+                File cssOutputFile = new File(cssOutputFilename);
                 if (verbose){
-                    System.err.println("[INFO] Output file is '" + outputFile.getAbsolutePath() + "'");
+                    System.err.println("[INFO] CSS output file is '" + cssOutputFile.getAbsolutePath() + "'");
                 }
-                embedder.setFilename(outputFile.getName());
-                out = new OutputStreamWriter(bytes, charset);
+                embedder.setFilename(cssOutputFile.getName());
+                cssOut = new OutputStreamWriter(cssBytes, charset);
             }
 
             //set verbose option
-            embedder.embedImages(out, root);
+            embedder.embedImages(cssOut, root);
 
         } catch (CmdLineParser.OptionException e) {
             usage();
@@ -199,12 +199,12 @@ public class CSSEmbed {
             }
             System.exit(1);
         } finally {
-            if (out != null) {
+            if (cssOut != null) {
                 try {
-                    out.close();
+                    cssOut.close();
 
-                    if(bytes.size() > 0) {
-                        bytes.writeTo(new FileOutputStream(outputFilename));
+                    if(cssBytes.size() > 0) {
+                        cssBytes.writeTo(new FileOutputStream(cssOutputFilename));
                     }
                 } catch (IOException e) {
                     System.err.println("[ERROR] " + e.getMessage());
@@ -234,6 +234,6 @@ public class CSSEmbed {
                         + "  --skip-missing        Don't throw an error for missing image files.\n"
                         + "  --max-uri-length len  Maximum length for a data URI. Defaults to 32768.\n"
                         + "  --max-image-size size Maximum image size (in bytes) to convert.\n"
-                        + "  -o <file>             Place the output into <file>. Defaults to stdout.");
+                        + "  -o <file>             Place the CSS output into <file>. Defaults to stdout.");
     }
 }
