@@ -69,10 +69,35 @@ public class CSSURLEmbedderTest {
 
         String result = writer.toString();
         assertEquals("/*\nContent-Type: multipart/related; boundary=\"" + CSSURLEmbedder.MHTML_SEPARATOR +
-                "\"\n\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "\nContent-Location:folder.png\n" +
+                "\"\n\n\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "\nContent-Location:folder.png\n" +
                 "Content-Transfer-Encoding:base64\n\n" + folderDataURI.substring(folderDataURI.indexOf(",")+1) +
                 "\n\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "--\n" +
                 "*/\nbackground: url(mhtml:" + mhtmlUrl + "styles_ie.css!folder.png);", result);
+    }
+
+    @Test
+    public void testAbsoluteLocalFileWithMhtmlFile() throws IOException {
+        String filename = CSSURLEmbedderTest.class.getResource("folder.png").getPath().replace("%20", " ");
+        String code = "background: url(folder.png);";
+        String mhtmlUrl = "http://www.example.com/dir/";
+
+        StringWriter cssWriter = new StringWriter();
+        StringWriter mhtmlWriter = new StringWriter();
+        int options = CSSURLEmbedder.MHTML_OPTION;
+        options = options | CSSURLEmbedder.MHTML_FILE_OPTION;
+        embedder = new CSSURLEmbedder(new StringReader(code), options, true);
+        embedder.setMHTMLRoot(mhtmlUrl);
+        embedder.setFilename("styles_ie.mht");
+        embedder.embedImages(cssWriter, mhtmlWriter, filename.substring(0, filename.lastIndexOf("/")+1));
+
+        String mhtmlResult = mhtmlWriter.toString();
+        assertEquals("Content-Type: multipart/related; boundary=\"" + CSSURLEmbedder.MHTML_SEPARATOR +
+                "\"\n\n\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "\nContent-Location:folder.png\n" +
+                "Content-Transfer-Encoding:base64\n\n" + folderDataURI.substring(folderDataURI.indexOf(",")+1) +
+                "\n\n--" + CSSURLEmbedder.MHTML_SEPARATOR + "--\n", mhtmlResult);
+
+        String cssResult = cssWriter.toString();
+        assertEquals("background: url(mhtml:" + mhtmlUrl + "styles_ie.mht!folder.png);", cssResult);
     }
 
     @Test
