@@ -55,6 +55,8 @@ public class CSSURLEmbedder {
 
     protected static String MHTML_SEPARATOR = "CSSEmbed_Image";
 
+    private static final String LINE_END = "\n";
+
     private static HashSet<String> imageTypes;
     static {
         imageTypes = new HashSet<String>();
@@ -187,7 +189,7 @@ public class CSSURLEmbedder {
         if (hasOption(MHTML_OPTION)){
             mhtmlBuilder.append("Content-Type: multipart/related; boundary=\"");
             mhtmlBuilder.append(MHTML_SEPARATOR);
-            mhtmlBuilder.append("\"\n\n");
+            mhtmlBuilder.append("\"").append(LINE_END).append(LINE_END);
         }
 
         while((line = reader.readLine()) != null){
@@ -197,7 +199,7 @@ public class CSSURLEmbedder {
             int npos;
 
             if (lineNum > 1){
-                cssBuilder.append("\n");
+                cssBuilder.append(LINE_END);
             }
 
 			Pattern checkForSkip = Pattern.compile("\\/\\*.*" + PROC_DIRECTIVE_PREFIX + ".*" + PROC_DIRECTIVE_SKIP + ".*\\*\\/", Pattern.CASE_INSENSITIVE);
@@ -268,14 +270,16 @@ public class CSSURLEmbedder {
                             if (hasOption(MHTML_OPTION)){
                                 String entryName = getFilename(url);
 
-                                //create MHTML header entry
+                                //add MHTML content part
+                                mhtmlBuilder.append(LINE_END);
                                 mhtmlBuilder.append("--");
-                                mhtmlBuilder.append(MHTML_SEPARATOR);
-                                mhtmlBuilder.append("\nContent-Location:");
-                                mhtmlBuilder.append(entryName);
-                                mhtmlBuilder.append("\nContent-Transfer-Encoding:base64\n\n");
+                                mhtmlBuilder.append(MHTML_SEPARATOR).append(LINE_END);
+                                mhtmlBuilder.append("Content-Location:");
+                                mhtmlBuilder.append(entryName).append(LINE_END);
+                                mhtmlBuilder.append("Content-Transfer-Encoding:base64");
+                                mhtmlBuilder.append(LINE_END).append(LINE_END);
                                 mhtmlBuilder.append(uriString.substring(uriString.indexOf(",")+1));
-                                mhtmlBuilder.append("\n");
+                                mhtmlBuilder.append(LINE_END);
 
                                 //output the URI
                                 cssBuilder.append("mhtml:");
@@ -312,18 +316,19 @@ public class CSSURLEmbedder {
         if (hasOption(MHTML_OPTION) && conversions > 0){
 
             //Add one more boundary to fix IE/Vista issue
-            mhtmlBuilder.append("\n--");
+        	mhtmlBuilder.append(LINE_END);
+            mhtmlBuilder.append("--");
             mhtmlBuilder.append(MHTML_SEPARATOR);
-            mhtmlBuilder.append("--\n");
+            mhtmlBuilder.append("--").append(LINE_END);
 
         	if (hasOption(MHTML_FILE_OPTION)) {
         		// write MHTML output to MHTML file
         		mhtmlOut.write(mhtmlBuilder.toString());
         	} else {
         		// wrap MHTML output in comments, write to CSS file
-        		cssOut.write("/*\n");
+        		cssOut.write("/*" + LINE_END);
         		cssOut.write(mhtmlBuilder.toString());
-        		cssOut.write("*/\n");
+        		cssOut.write("*/"+ LINE_END);
         	}
         }
 
