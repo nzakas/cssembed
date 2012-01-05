@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2009 Nicholas C. Zakas. All rights reserved.
  * http://www.nczonline.net/
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
- 
+
 package net.nczonline.web.datauri;
 
 import java.io.ByteArrayOutputStream;
@@ -38,96 +38,96 @@ import java.net.URLConnection;
  * @author Nicholas C. Zakas
  */
 public class DataURIGenerator {
- 
+
 
     private static HashMap binaryTypes = new HashMap();
     private static HashMap textTypes = new HashMap();
     private static boolean verbose = false;
- 
+
     //initialize file types and MIME types
-    static {        
+    static {
         binaryTypes.put("gif", "image/gif");
         binaryTypes.put("jpg", "image/jpeg");
         binaryTypes.put("png", "image/png");
-        binaryTypes.put("jpeg", "image/jpeg");   
-        
+        binaryTypes.put("jpeg", "image/jpeg");
+
         textTypes.put("htm", "text/html");
         textTypes.put("html", "text/html");
         textTypes.put("xml", "application/xml");
-        textTypes.put("xhtml", "application/xhtml+xml");  
+        textTypes.put("xhtml", "application/xhtml+xml");
         textTypes.put("js", "application/x-javascript");
         textTypes.put("css", "text/css");
         textTypes.put("txt", "text/plain");
-    }    
-    
+    }
+
     //--------------------------------------------------------------------------
     // Get/Set verbose flag
-    //--------------------------------------------------------------------------    
-    
+    //--------------------------------------------------------------------------
+
     public static boolean getVerbose(){
         return verbose;
     }
-    
+
     public static void setVerbose(boolean newVerbose){
         verbose = newVerbose;
     }
-    
+
     //--------------------------------------------------------------------------
     // Generate data URIs from a file
     //--------------------------------------------------------------------------
-    
+
     /**
      * Generates a data URI from a file, outputting it to the given writer. The
      * MIME type is determined from examining the filename.
      * @param file The file from which to generate the data URI.
      * @param out Where to output the data URI.
      * @throws java.io.IOException
-     */ 
+     */
     public static void generate(File file, Writer out) throws IOException {
-        generate(file, out, null);        
+        generate(file, out, null);
     }
-    
+
     /**
      * Generates a data URI from a file, outputting it to the given writer.
      * @param file The file from which to generate the data URI.
      * @param out Where to output the data URI.
      * @param mimeType The MIME type to use for the data URI.
      * @throws java.io.IOException
-     */    
+     */
     public static void generate(File file, Writer out, String mimeType) throws IOException {
-        generateDataURI(file, out, mimeType);        
-    }   
-  
+        generateDataURI(file, out, mimeType);
+    }
+
     //--------------------------------------------------------------------------
     // Generate data URIs from a URL
     //--------------------------------------------------------------------------
-    
+
     /**
      * Generates a data URI from a file, outputting it to the given writer. The
      * MIME type is determined from examining the filename.
      * @param file The file from which to generate the data URI.
      * @param out Where to output the data URI.
      * @throws java.io.IOException
-     */ 
+     */
     public static void generate(URL url, Writer out) throws IOException {
-        generate(url, out, null);        
+        generate(url, out, null);
     }
-    
+
     /**
      * Generates a data URI from a URL, outputting it to the given writer.
      * @param url The URL form which to generate the data URI.
      * @param out Where to output the data URI.
      * @param mimeType The MIME type to use for the data URI.
      * @throws java.io.IOException
-     */    
+     */
     public static void generate(URL url, Writer out, String mimeType) throws IOException {
-        generateDataURI(url, out, mimeType);        
+        generateDataURI(url, out, mimeType);
     }
-    
+
     //--------------------------------------------------------------------------
     // Helper methods
-    //--------------------------------------------------------------------------    
-   
+    //--------------------------------------------------------------------------
+
     /**
      * Generates a data URI from the specified file and outputs to the given writer.
      * @param file The file to from which to create a data URI.
@@ -137,18 +137,18 @@ public class DataURIGenerator {
      * @throws java.io.IOException
      */
     private static void generateDataURI(File file, Writer out, String mimeType) throws IOException{
-        
+
         //read the bytes from the file
         InputStream in = new FileInputStream(file);
         byte[] bytes = new byte[(int) file.length()];
         in.read(bytes);
-        in.close();  
-        
+        in.close();
+
         //verify MIME type and charset
-        mimeType = getMimeType(file.getName(), mimeType);      
-        
+        mimeType = getMimeType(file.getName(), mimeType);
+
         //actually write
-        generateDataURI(bytes, out, mimeType);        
+        generateDataURI(bytes, out, mimeType);
     }
 
     /**
@@ -159,39 +159,39 @@ public class DataURIGenerator {
      * @throws java.io.IOException
      */
     private static void generateDataURI(URL url, Writer out, String mimeType) throws IOException{
-        
+
         //get information about the URL
         URLConnection conn = url.openConnection();
-        
+
         //if no MIME type has been specified, get from the connection
-        if (mimeType == null){            
+        if (mimeType == null){
             mimeType = getMimeType(url.getFile(), conn.getContentType());
             if (verbose){
                 System.err.println("[INFO] No MIME type provided, using detected type of '" + mimeType + "'.");
-            }            
+            }
         }
-        
+
         //sometimes charset is in the MIME type
-        if (mimeType.indexOf("; charset=") > -1){                        
+        if (mimeType.indexOf("; charset=") > -1){
             mimeType = mimeType.replace(" ", ""); //remove the space
         } else {
             mimeType = getMimeTypeWithCharset(mimeType);
         }
-        
+
         //read the bytes from the URL
-        InputStream in = conn.getInputStream();       
+        InputStream in = conn.getInputStream();
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         int c;
-        
+
         while((c = in.read()) != -1){
             byteStream.write(c);
         }
-        
+
         byteStream.flush();
-        in.close();        
-        
+        in.close();
+
         //actually write
-        generateDataURI(byteStream.toByteArray(), out, mimeType);        
+        generateDataURI(byteStream.toByteArray(), out, mimeType);
     }
 
     /**
@@ -203,22 +203,22 @@ public class DataURIGenerator {
      * @throws java.io.IOException
      */
     private static void generateDataURI(byte[] bytes, Writer out, String mimeType) throws IOException {
-        
+
         //create the output
-        StringBuffer buffer = new StringBuffer();        
-        buffer.append("data:");        
-        
-        //add MIME type        
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("data:");
+
+        //add MIME type
         buffer.append(mimeType);
-        
+
         //output base64-encoding
         buffer.append(";base64,");
         buffer.append(new String(Base64.encodeBytes(bytes)));
-        
+
         //output to writer
-        out.write(buffer.toString());        
-    }    
-    
+        out.write(buffer.toString());
+    }
+
     /**
      * Determines if the given filename represents an image file.
      * @param filename The filename to check.
@@ -228,9 +228,9 @@ public class DataURIGenerator {
         String fileType = getFileType(filename);
         return binaryTypes.containsKey(fileType) && binaryTypes.get(fileType).toString().startsWith("image");
     }
-    
+
     /**
-     * Retrieves the extension for the filename. 
+     * Retrieves the extension for the filename.
      * @param filename The filename to get the extension from.
      * @return All characters after the final "." in the filename.
      */
@@ -241,7 +241,7 @@ public class DataURIGenerator {
         if (idx >= 0 && idx < filename.length() - 1) {
             type = filename.substring(idx + 1);
         }
-        
+
         return type;
     }
 
@@ -256,40 +256,40 @@ public class DataURIGenerator {
      */
     private static String getMimeType(String filename, String mimeType) throws IOException {
         if (mimeType == null){
-            
+
             String type = getFileType(filename);
 
             //if it's an image type, don't use a charset
-            if (binaryTypes.containsKey(type)){    
-                mimeType = (String) binaryTypes.get(type);        
+            if (binaryTypes.containsKey(type)){
+                mimeType = (String) binaryTypes.get(type);
             } else if (textTypes.containsKey(type)){
-                mimeType = (String) textTypes.get(type) + ";charset=UTF-8";    
+                mimeType = (String) textTypes.get(type) + ";charset=UTF-8";
             } else {
-                throw new IOException("No MIME type provided and MIME type couldn't be automatically determined.");                
+                throw new IOException("No MIME type provided and MIME type couldn't be automatically determined.");
             }
 
             if (verbose){
                 System.err.println("[INFO] No MIME type provided, defaulting to '" + mimeType + "'.");
-            }      
+            }
         }
-        
-        return mimeType;      
+
+        return mimeType;
     }
-    
-    private static String getMimeTypeWithCharset(String mimeType){           
+
+    private static String getMimeTypeWithCharset(String mimeType){
 
         if (binaryTypes.containsValue(mimeType)){
             if (verbose){
                 System.err.println("[INFO] Image file detected, skipping charset.");
-            }             
+            }
             return mimeType;
         } else {
             if (verbose){
                 System.err.println("[INFO] Using charset 'UTF-8'.");
-            }   
+            }
             return mimeType + ";charset=UTF-8";
         }
 
     }
-            
+
 }

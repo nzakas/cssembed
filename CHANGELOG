@@ -1,3 +1,7 @@
+January 5, 2012 - v0.4.6
+* Add option for MHTML output file separate from CSS output file. (jbarker)
+* Fixed bug where MHTML content was not rendered by IE6 & IE7.
+
 November 22, 2011 - v0.4.5
 * Add option to skip some images using /*CSSEmbed:SKIP*/ after the declaration.
 
