@@ -1,16 +1,39 @@
-CSSEmbed
+# CSSEmbed
 Copyright (c) 2009 Nicholas C. Zakas. All rights reserved.
 
--------------------------------------------------------------------------------
- About
--------------------------------------------------------------------------------
+## About
 
 CSSEmbed is a small program/library to automate embedding of data URIs in
 CSS files.
 
--------------------------------------------------------------------------------
- License
--------------------------------------------------------------------------------
+---
+
+## Usage
+
+    java -jar cssembed-x.y.z.jar -o <output filename> <input filename>
+
+For example:
+
+     java -jar cssembed-x.y.z.jar -o styles_new.css styles.css
+
+When the -o flag is omitted, the output ends up on stdout, thus you can direct the output to a file directly:
+
+     java -jar cssembed-x.y.z.jar styles.css > styles_new.css
+
+Complete usage instructions are available using the -h flag:
+
+    Usage: java -jar cssembed-x.y.z.jar [options] [input file]
+
+    Global Options
+       -h, --help            Displays this information.
+       --charset             Character set of the input file.
+       -v, --verbose         Display informational messages and warnings.
+       -root                 Prepends  to all relative URLs.
+       -o                    Place the output into . Defaults to stdout.
+
+---
+
+## License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
