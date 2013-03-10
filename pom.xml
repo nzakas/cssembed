@@ -6,8 +6,8 @@
 	<version>0.4.5</version>
 	<packaging>jar</packaging>
 
-	<name>CSSEmbed is a small program/library to automate embedding of data URIs in CSS files.</name>
-	<description>CSSEmbed is a small program/library to automate embedding of data URIs in CSS files.</description>
+	<name>CSSEmbed</name>
+	<description>CSSEmbed</description>
 	<url>https://github.com/nzakas/cssembed</url>
 
 	<parent>
