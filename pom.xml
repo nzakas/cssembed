@@ -131,8 +131,7 @@
 
 	<licenses>
 		<license>
-			<name>?</name>
-			<url>?</url>
+			<url>https://github.com/nzakas/cssembed</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
