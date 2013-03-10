@@ -1,3 +1,14 @@
 build/
 nbproject/
 tmp/
+
+# Maven ignores
+target/
+
+# Eclipse ignores
+.classpath
+.project
+.loadpath
+.settings/
+target-eclipse/
+.metadata/
