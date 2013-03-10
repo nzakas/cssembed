@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.nczonline.web</groupId>
 	<artifactId>cssembed</artifactId>
-	<version>1.0</version>
+	<version>0.4.5</version>
 	<packaging>jar</packaging>
 
 	<name>CSSEmbed is a small program/library to automate embedding of data URIs in CSS files.</name>
